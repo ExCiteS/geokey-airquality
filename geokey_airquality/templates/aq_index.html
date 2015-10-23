@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %} | Air Quality{% endblock %}
+
+{% block main %}
+<div class="page-header">
+    <div class="container">
+        <h1>Air Quality</h1>
+    </div>
+</div>
+
+<div class="container">
+    {% include 'snippets/messages.html' %}
+
+    <div class="row">
+        <form method="POST" action="{% url 'geokey_airquality:index' %}" class="col-md-12">
+            <h3 class="header">Manage your Air Quality projects</h3>
+            {% csrf_token %}
+
+            <ul class="list-unstyled overview-list">
+                {% for project in projects %}
+                <li>
+                    <h4>{{ project.name }}</h4>
+
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="airquality_project" value="{{ project.id }}" {% if project.airquality %}checked{% endif %}> Enable for use in Air Quality
+                            </label>
+                        </div>
+                    </div>
+                </li>
+                {% empty %}
+                <li>
+                    <div class="well empty-list">
+                        <p class="lead">We couldn't find any projects you are eligible to manage.</p>
+                        <p>You can create a new GeoKey project if you want to add it to Air Quality projects.</p>
+                        <a href="{% url 'admin:project_create' %}" class="btn btn-lg btn-success">Create a new project</a>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+
+            {% if projects %}
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="reset" class="btn btn-link">Reset</button>
+                </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endblock %}
