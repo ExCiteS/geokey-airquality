@@ -239,9 +239,9 @@ class AQMeasurementsSingleAPIView(APIView):
     API endpoint for a single measurement.
     """
 
-    def delete(self, request, point_id):
+    def delete(self, request, point_id, measurement_id):
         """
-        Deletes a single point.
+        Deletes a single measurement.
 
         Parameters
         ----------
@@ -249,6 +249,8 @@ class AQMeasurementsSingleAPIView(APIView):
             Represents the request.
         point_id : int
             Identifies the point in the database.
+        measurement_id : int
+            Identifies the measurement in the database.
 
         Returns
         -------
@@ -257,22 +259,19 @@ class AQMeasurementsSingleAPIView(APIView):
         """
 
         try:
-            point = AirQualityPoint.objects.get(pk=point_id)
-        except AirQualityPoint.DoesNotExist:
+            measurement = AirQualityMeasurement.objects.get(pk=measurement_id)
+        except AirQualityMeasurement.DoesNotExist:
             return Response(
-                {'error': 'Point not found.'},
+                {'error': 'Measurement not found.'},
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        if request.user != point.creator:
+        if request.user != measurement.creator:
             return Response(
-                {'error': 'You have no rights to delete this point.'},
+                {'error': 'You have no rights to delete this measurement.'},
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        for measurement in AirQualityMeasurement.objects.filter(point=point):
-            measurement.delete()
-
-        point.delete()
+        measurement.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
