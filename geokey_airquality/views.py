@@ -159,7 +159,8 @@ class AQPointsSingleAPIView(APIView):
         Returns
         -------
         rest_framework.response.Respone
-            Empty response indicating successful delete.
+            Contains empty response indicating successful delete or an error
+            message.
         """
 
         try:
@@ -239,6 +240,50 @@ class AQMeasurementsSingleAPIView(APIView):
     API endpoint for a single measurement.
     """
 
+    def patch(self, request, point_id, measurement_id):
+        """
+        Updates a single measurement.
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the request.
+        point_id : int
+            Identifies the point in the database.
+        measurement_id : int
+            Identifies the measurement in the database.
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Contains the serialised measurement or an error message.
+        """
+
+        user = request.user
+        data = request.data
+
+        try:
+            measurement = AirQualityMeasurement.objects.get(pk=measurement_id)
+        except AirQualityMeasurement.DoesNotExist:
+            return Response(
+                {'error': 'Measurement not found.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        if user != measurement.creator:
+            return Response(
+                {'error': 'You have no rights to update this measurement.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        serializer = MeasurementSerializer(
+            measurement, data=data, context={'user': user, 'data': data}
+        )
+
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
     def delete(self, request, point_id, measurement_id):
         """
         Deletes a single measurement.
@@ -255,7 +300,8 @@ class AQMeasurementsSingleAPIView(APIView):
         Returns
         -------
         rest_framework.response.Respone
-            Empty response indicating successful delete.
+            Contains empty response indicating successful delete or an error
+            message.
         """
 
         try:

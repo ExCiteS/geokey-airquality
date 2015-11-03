@@ -231,6 +231,7 @@ class MeasurementSerializer(BaseSerializer):
 
         data = self.context.get('data')
         started = data.get('started')
+        finished = data.get('finished')
         called = data.get('called')
         now = timezone.now()
 
@@ -240,15 +241,59 @@ class MeasurementSerializer(BaseSerializer):
             timedelta = parse_datetime(called) - parse_datetime(started)
             started = now - timedelta
 
+        if finished is not None:
+            if called is None:
+                finished = now
+            else:
+                timedelta = parse_datetime(called) - parse_datetime(finished)
+                finished = now - timedelta
+
         self.instance = AirQualityMeasurement.objects.create(
             point=self.context.get('point'),
             barcode=validated_data.get('barcode'),
             creator=self.context.get('user'),
             started=started,
+            finished=finished,
             properties=validated_data.get('properties')
         )
 
         return self.instance
+
+    def update(self, instance, validated_data):
+        """
+        Updates an existing measurement and returns the instance.
+
+        Parameter
+        ---------
+        instance : geokey_airquality.models.AirQualityMeasurement
+            The instance to be updated.
+        validated_data : dict
+            Data after validation.
+
+        Returns
+        -------
+        geokey_airquality.models.AirQualityMeasurement
+            The instance updated.
+        """
+
+        data = self.context.get('data')
+        finished = data.get('finished')
+        called = data.get('called')
+        now = timezone.now()
+
+        if finished is not None:
+            if called is None:
+                finished = now
+            else:
+                timedelta = parse_datetime(called) - parse_datetime(finished)
+                finished = now - timedelta
+
+            instance.finished = finished
+
+        instance.properties = validated_data.get('properties')
+        instance.save()
+
+        return instance
 
     def to_representation(self, object):
         """
