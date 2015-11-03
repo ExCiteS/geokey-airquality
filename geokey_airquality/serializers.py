@@ -230,9 +230,9 @@ class MeasurementSerializer(BaseSerializer):
         """
 
         data = self.context.get('data')
-        started = data.get('started')
-        finished = data.get('finished')
-        called = data.get('called')
+        started = data.get('started', None)
+        finished = data.get('finished', None)
+        called = data.get('called', None)
         now = timezone.now()
 
         if started is None or called is None:
@@ -277,8 +277,8 @@ class MeasurementSerializer(BaseSerializer):
         """
 
         data = self.context.get('data')
-        finished = data.get('finished')
-        called = data.get('called')
+        finished = data.get('finished', None)
+        called = data.get('called', None)
         now = timezone.now()
 
         if finished is not None:
