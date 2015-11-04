@@ -60,7 +60,7 @@ class AQProjectsView(LoginRequiredMixin, SuperuserMixin, TemplateView):
 class AQProjectsAPIView(APIView):
 
     @handle_exceptions_for_ajax
-    def post(self, request):
+    def get(self, request):
         aq_projects = []
 
         for aq_project in AirQualityProject.objects.all():
