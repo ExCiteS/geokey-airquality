@@ -185,7 +185,32 @@ class AQPointsSingleAPIView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class AQMeasurementsAPIView(APIView):
+class MeasurementAPIMixin(object):
+
+    def submit_measurement(self, request, data, instance):
+
+        user = request.user
+        project = request.data.get('project', None)
+        properties = data.get('properties', None)
+
+        if project is not None and properties is not None:
+            finished = data.get('finished', None)
+            results = properties.get('results', None)
+
+            if finished is not None and results is not None:
+                try:
+                    project = Project.objects.get(pk=project)
+                except:
+                    return False
+
+                if project.can_contribute(user):
+                    instance.delete()
+                    return True
+
+        return False
+
+
+class AQMeasurementsAPIView(MeasurementAPIMixin, APIView):
 
     """
     API endpoint for all measurements.
@@ -231,10 +256,17 @@ class AQMeasurementsAPIView(APIView):
 
         if serializer.is_valid(raise_exception=True):
             serializer.save()
+
+            data = serializer.data
+            instance = serializer.instance
+
+            if self.submit_measurement(request, data, instance):
+                return Response(status=status.HTTP_204_NO_CONTENT)
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class AQMeasurementsSingleAPIView(APIView):
+class AQMeasurementsSingleAPIView(MeasurementAPIMixin, APIView):
 
     """
     API endpoint for a single measurement.
@@ -282,7 +314,14 @@ class AQMeasurementsSingleAPIView(APIView):
 
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+
+            data = serializer.data
+            instance = serializer.instance
+
+            if self.submit_measurement(request, data, instance):
+                return Response(status=status.HTTP_204_NO_CONTENT)
+
+            return Response(data, status=status.HTTP_200_OK)
 
     def delete(self, request, point_id, measurement_id):
         """
