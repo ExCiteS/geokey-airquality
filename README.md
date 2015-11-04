@@ -1,5 +1,7 @@
 # geokey-airquality
 
+[GeoKey](https://github.com/ExCiteS/geokey) (v0.8+ only) extension for [Air Quality](https://github.com/ExCiteS/airquality) functionality.
+
 ## How to install
 
 Install the extension:
