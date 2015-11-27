@@ -1,13 +1,6 @@
 from django.conf.urls import patterns, url
 
-from geokey_airquality.views import (
-    AQProjectsView,
-    AQPointsAPIView,
-    AQPointsSingleAPIView,
-    AQMeasurementsAPIView,
-    AQMeasurementsSingleAPIView,
-    AQProjectsAPIView,
-)
+from geokey_airquality import views
 
 
 urlpatterns = patterns(
@@ -18,7 +11,7 @@ urlpatterns = patterns(
     # ###########################
 
     url(r'^admin/airquality/$',
-        AQProjectsView.as_view(),
+        views.AQIndexView.as_view(),
         name='index'),
 
     # ###########################
@@ -26,25 +19,25 @@ urlpatterns = patterns(
     # ###########################
 
     url(r'^api/airquality/'
-        r'points/$',
-        AQPointsAPIView.as_view(),
-        name='api_points'),
+        r'locations/$',
+        views.AQLocationsAPIView.as_view(),
+        name='api_locations'),
     url(r'^api/airquality/'
-        r'points/(?P<point_id>[0-9]+)/$',
-        AQPointsSingleAPIView.as_view(),
-        name='api_points_single'),
+        r'locations/(?P<location_id>[0-9]+)/$',
+        views.AQLocationsSingleAPIView.as_view(),
+        name='api_locations_single'),
     url(r'^api/airquality/'
-        r'points/(?P<point_id>[0-9]+)/'
+        r'locations/(?P<location_id>[0-9]+)/'
         r'measurements/$',
-        AQMeasurementsAPIView.as_view(),
+        views.AQMeasurementsAPIView.as_view(),
         name='api_measurements'),
     url(r'^api/airquality/'
-        r'points/(?P<point_id>[0-9]+)/'
+        r'locations/(?P<location_id>[0-9]+)/'
         r'measurements/(?P<measurement_id>[0-9]+)/$',
-        AQMeasurementsSingleAPIView.as_view(),
+        views.AQMeasurementsSingleAPIView.as_view(),
         name='api_measurements_single'),
     url(r'^api/airquality/'
         r'projects/$',
-        AQProjectsAPIView.as_view(),
+        views.AQProjectsAPIView.as_view(),
         name='api_projects'),
 )
