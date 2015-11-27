@@ -8,8 +8,14 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from geokey.users.tests.model_factories import UserF
 
 from geokey_airquality import views
-from geokey_airquality.models import AirQualityLocation, AirQualityMeasurement
-from geokey_airquality.tests.model_factories import AirQualityLocationF
+from geokey_airquality.models import (
+    AirQualityLocation,
+    AirQualityMeasurement
+)
+from geokey_airquality.tests.model_factories import (
+    AirQualityLocationF,
+    AirQualityMeasurementF
+)
 
 
 class AQLocationsAPIViewTest(TestCase):
@@ -69,6 +75,26 @@ class AQLocationsAPIViewTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(locations), 1)
+        self.assertEqual(len(locations[0]['measurements']), 0)
+
+    def test_get_together_with_measurements(self):
+
+        AirQualityMeasurementF.create(
+            location=self.location_1,
+            creator=self.location_1.creator
+        )
+        AirQualityMeasurementF.create(
+            location=self.location_2,
+            creator=self.location_2.creator
+        )
+
+        force_authenticate(self.request_get, user=self.creator)
+        response = self.view(self.request_get).render()
+        locations = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(locations), 1)
+        self.assertEqual(len(locations[0]['measurements']), 1)
 
     def test_post_with_anonymous(self):
 
