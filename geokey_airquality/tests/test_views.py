@@ -167,7 +167,7 @@ class AQLocationsSingleAPIViewTest(TestCase):
             False
         )
 
-    def test_delete_when_no_project(self):
+    def test_delete_when_no_location(self):
 
         AirQualityLocation.objects.get(pk=self.location.id).delete()
         force_authenticate(self.request_delete, user=self.creator)
