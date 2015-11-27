@@ -76,6 +76,7 @@ class AQLocationsAPIViewTest(TestCase):
         response = self.view(self.request_post).render()
 
         self.assertEqual(response.status_code, 403)
+        self.assertEqual(AirQualityLocation.objects.count(), 2)
 
     def test_post_with_user(self):
 
@@ -83,6 +84,7 @@ class AQLocationsAPIViewTest(TestCase):
         response = self.view(self.request_post).render()
 
         self.assertEqual(response.status_code, 201)
+        self.assertEqual(AirQualityLocation.objects.count(), 3)
 
 
 class AQLocationsSingleAPIViewTest(TestCase):
@@ -112,6 +114,7 @@ class AQLocationsSingleAPIViewTest(TestCase):
         ).render()
 
         self.assertEqual(response.status_code, 403)
+        self.assertEqual(AirQualityLocation.objects.count(), 1)
 
     def test_delete_with_user(self):
 
@@ -122,6 +125,7 @@ class AQLocationsSingleAPIViewTest(TestCase):
         ).render()
 
         self.assertEqual(response.status_code, 403)
+        self.assertEqual(AirQualityLocation.objects.count(), 1)
 
     def test_delete_with_creator(self):
 
