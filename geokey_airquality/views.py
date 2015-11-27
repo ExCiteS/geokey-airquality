@@ -5,7 +5,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from braces.views import LoginRequiredMixin
 
-from geokey.users.models import User
 from geokey.projects.models import Project
 from geokey.projects.serializers import ProjectSerializer
 from geokey.core.decorators import handle_exceptions_for_ajax
@@ -83,7 +82,7 @@ class AQLocationsAPIView(APIView):
 
     def get(self, request):
         """
-        Returns a list of all locations.
+        Returns a list of all locations created by the user.
 
         Parameters
         ----------
@@ -99,7 +98,10 @@ class AQLocationsAPIView(APIView):
         user = request.user
 
         if user.is_anonymous():
-            user = User.objects.get(display_name='AnonymousUser')
+            return Response(
+                {'error': 'You have no rights to retrieve all locations.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
         serializer = LocationSerializer(
             AirQualityLocation.objects.filter(creator=user),
@@ -129,7 +131,7 @@ class AQLocationsAPIView(APIView):
 
         if user.is_anonymous():
             return Response(
-                {'error': 'You have no rights to add a location.'},
+                {'error': 'You have no rights to add a new location.'},
                 status=status.HTTP_403_FORBIDDEN
             )
 
