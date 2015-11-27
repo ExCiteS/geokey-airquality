@@ -152,7 +152,7 @@ class AQLocationsSingleAPIView(APIView):
 
     def delete(self, request, location_id):
         """
-        Deletes a single location.
+        Deletes a single location created by the user.
 
         Parameters
         ----------
