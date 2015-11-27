@@ -7,17 +7,17 @@ from django.utils.dateparse import parse_datetime
 
 from rest_framework.serializers import BaseSerializer
 
-from geokey_airquality.models import AirQualityPoint, AirQualityMeasurement
+from geokey_airquality.models import AirQualityLocation, AirQualityMeasurement
 
 
-class PointSerializer(BaseSerializer):
+class LocationSerializer(BaseSerializer):
     """
-    Serialiser for geokey_airquality.models.AirQualityPoint.
+    Serialiser for geokey_airquality.models.AirQualityLocation.
     """
 
     def is_valid(self, raise_exception=False):
         """
-        Checks if point is valid.
+        Checks if location is valid.
 
         Parameter
         ---------
@@ -91,7 +91,7 @@ class PointSerializer(BaseSerializer):
 
     def create(self, validated_data):
         """
-        Creates a new point and returns the instance.
+        Creates a new location and returns the instance.
 
         Parameter
         ---------
@@ -100,7 +100,7 @@ class PointSerializer(BaseSerializer):
 
         Returns
         -------
-        geokey_airquality.models.AirQualityPoint
+        geokey_airquality.models.AirQualityLocation
             The instance created.
         """
 
@@ -115,7 +115,7 @@ class PointSerializer(BaseSerializer):
             timedelta = parse_datetime(called) - parse_datetime(created)
             created = now - timedelta
 
-        self.instance = AirQualityPoint.objects.create(
+        self.instance = AirQualityLocation.objects.create(
             name=validated_data.get('name'),
             geometry=validated_data.get('geometry'),
             creator=self.context.get('user'),
@@ -127,17 +127,17 @@ class PointSerializer(BaseSerializer):
 
     def to_representation(self, object):
         """
-        Returns the native representation of a point.
+        Returns the native representation of a location.
 
         Parameter
         ---------
-        object : geokey_airquality.models.AirQualityPoint
+        object : geokey_airquality.models.AirQualityLocation
             The instance that is serialised.
 
         Returns
         -------
         dict
-            Native represenation of the point.
+            Native represenation of the location.
         """
 
         measurement_serializer = MeasurementSerializer(
@@ -249,7 +249,7 @@ class MeasurementSerializer(BaseSerializer):
                 finished = now - timedelta
 
         self.instance = AirQualityMeasurement.objects.create(
-            point=self.context.get('point'),
+            location=self.context.get('location'),
             barcode=validated_data.get('barcode'),
             creator=self.context.get('user'),
             started=started,

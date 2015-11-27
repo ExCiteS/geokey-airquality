@@ -14,7 +14,7 @@ class AirQualityProject(models.Model):
     )
 
 
-class AirQualityPoint(models.Model):
+class AirQualityLocation(models.Model):
 
     name = models.CharField(max_length=100)
     geometry = gis.GeometryField(geography=True)
@@ -25,7 +25,7 @@ class AirQualityPoint(models.Model):
 
 class AirQualityMeasurement(models.Model):
 
-    point = models.ForeignKey('AirQualityPoint', related_name='measurements')
+    location = models.ForeignKey('AirQualityLocation', related_name='measurements')
     barcode = models.CharField(max_length=25)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     started = models.DateTimeField(auto_now_add=False)

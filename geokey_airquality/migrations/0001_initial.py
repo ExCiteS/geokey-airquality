@@ -16,18 +16,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='AirQualityMeasurement',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('barcode', models.CharField(max_length=25)),
-                ('started', models.DateTimeField()),
-                ('finished', models.DateTimeField(null=True, blank=True)),
-                ('properties', django_pgjson.fields.JsonBField(default={})),
-                ('creator', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
-            ],
-        ),
-        migrations.CreateModel(
-            name='AirQualityPoint',
+            name='AirQualityLocation',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100)),
@@ -38,14 +27,21 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
+            name='AirQualityMeasurement',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('barcode', models.CharField(max_length=25)),
+                ('started', models.DateTimeField()),
+                ('finished', models.DateTimeField(null=True, blank=True)),
+                ('properties', django_pgjson.fields.JsonBField(default={})),
+                ('creator', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('location', models.ForeignKey(related_name='measurements', to='geokey_airquality.AirQualityLocation')),
+            ],
+        ),
+        migrations.CreateModel(
             name='AirQualityProject',
             fields=[
                 ('project', models.OneToOneField(related_name='airquality', primary_key=True, serialize=False, to='projects.Project')),
             ],
-        ),
-        migrations.AddField(
-            model_name='airqualitymeasurement',
-            name='point',
-            field=models.ForeignKey(related_name='measurements', to='geokey_airquality.AirQualityPoint'),
         ),
     ]

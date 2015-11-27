@@ -12,17 +12,17 @@ from geokey.core.decorators import handle_exceptions_for_ajax
 from geokey.extensions.views import SuperuserMixin
 
 from geokey_airquality.models import (
-    AirQualityPoint,
+    AirQualityLocation,
     AirQualityMeasurement,
     AirQualityProject
 )
 from geokey_airquality.serializers import (
-    PointSerializer,
+    LocationSerializer,
     MeasurementSerializer
 )
 
 
-class AQProjectsView(LoginRequiredMixin, SuperuserMixin, TemplateView):
+class AQIndexView(LoginRequiredMixin, SuperuserMixin, TemplateView):
 
     template_name = 'aq_index.html'
     exception_message = 'Managing Air Quality is for superusers only.'
@@ -31,7 +31,7 @@ class AQProjectsView(LoginRequiredMixin, SuperuserMixin, TemplateView):
         projects = Project.objects.all()
         enabled = AirQualityProject.objects.filter(project__in=projects)
 
-        return super(AQProjectsView, self).get_context_data(
+        return super(AQIndexView, self).get_context_data(
             projects=projects,
             enabled=enabled,
             *args,
@@ -75,15 +75,15 @@ class AQProjectsAPIView(APIView):
         return Response(serializer.data)
 
 
-class AQPointsAPIView(APIView):
+class AQLocationsAPIView(APIView):
 
     """
-    API endpoint for all points.
+    API endpoint for all locations.
     """
 
     def get(self, request):
         """
-        Returns a list of all points.
+        Returns a list of all locations.
 
         Parameters
         ----------
@@ -93,7 +93,7 @@ class AQPointsAPIView(APIView):
         Returns
         -------
         rest_framework.response.Respone
-            Contains the serialised points.
+            Contains the serialised locations.
         """
 
         user = request.user
@@ -101,14 +101,17 @@ class AQPointsAPIView(APIView):
         if user.is_anonymous():
             user = User.objects.get(display_name='AnonymousUser')
 
-        points = AirQualityPoint.objects.filter(creator=user)
-        serializer = PointSerializer(points, many=True, context={'user': user})
+        serializer = LocationSerializer(
+            AirQualityLocation.objects.filter(creator=user),
+            many=True,
+            context={'user': user}
+        )
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         """
-        Adds a point. Returns created and serialised point.
+        Adds a location. Returns created and serialised location.
 
         Parameter
         ---------
@@ -118,7 +121,7 @@ class AQPointsAPIView(APIView):
         Returns
         -------
         rest_framework.reponse.Response
-            Contains the serialised point or an error message.
+            Contains the serialised location or an error message.
         """
 
         user = request.user
@@ -126,11 +129,11 @@ class AQPointsAPIView(APIView):
 
         if user.is_anonymous():
             return Response(
-                {'error': 'You have no rights to add a point.'},
+                {'error': 'You have no rights to add a location.'},
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        serializer = PointSerializer(
+        serializer = LocationSerializer(
             data=data, context={'user': user, 'data': data}
         )
 
@@ -139,22 +142,22 @@ class AQPointsAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class AQPointsSingleAPIView(APIView):
+class AQLocationsSingleAPIView(APIView):
 
     """
-    API endpoint for a single point.
+    API endpoint for a single location.
     """
 
-    def delete(self, request, point_id):
+    def delete(self, request, location_id):
         """
-        Deletes a single point.
+        Deletes a single location.
 
         Parameters
         ----------
         request : rest_framework.request.Request
             Represents the request.
-        point_id : int
-            Identifies the point in the database.
+        location_id : int
+            Identifies the location in the database.
 
         Returns
         -------
@@ -164,23 +167,25 @@ class AQPointsSingleAPIView(APIView):
         """
 
         try:
-            point = AirQualityPoint.objects.get(pk=point_id)
-        except AirQualityPoint.DoesNotExist:
+            location = AirQualityLocation.objects.get(pk=location_id)
+        except AirQualityLocation.DoesNotExist:
             return Response(
-                {'error': 'Point not found.'},
+                {'error': 'Location not found.'},
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        if request.user != point.creator:
+        if request.user != location.creator:
             return Response(
-                {'error': 'You have no rights to delete this point.'},
+                {'error': 'You have no rights to delete this location.'},
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        for measurement in AirQualityMeasurement.objects.filter(point=point):
+        measurements = AirQualityMeasurement.objects.filter(location=location)
+
+        for measurement in measurements:
             measurement.delete()
 
-        point.delete()
+        location.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -216,7 +221,7 @@ class AQMeasurementsAPIView(MeasurementAPIMixin, APIView):
     API endpoint for all measurements.
     """
 
-    def post(self, request, point_id):
+    def post(self, request, location_id):
         """
         Adds a measurement. Returns created and serialised measurement.
 
@@ -224,8 +229,8 @@ class AQMeasurementsAPIView(MeasurementAPIMixin, APIView):
         ---------
         request : rest_framework.request.Request
             Object representing the request.
-        point_id : int
-            Identifies the point in the database.
+        location_id : int
+            Identifies the location in the database.
 
         Returns
         -------
@@ -237,21 +242,25 @@ class AQMeasurementsAPIView(MeasurementAPIMixin, APIView):
         data = request.data
 
         try:
-            point = AirQualityPoint.objects.get(pk=point_id)
-        except AirQualityPoint.DoesNotExist:
+            location = AirQualityLocation.objects.get(pk=location_id)
+        except AirQualityLocation.DoesNotExist:
             return Response(
-                {'error': 'Point not found.'},
+                {'error': 'Location not found.'},
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        if request.user != point.creator:
+        if request.user != location.creator:
             return Response(
                 {'error': 'You have no rights to add a measurement.'},
                 status=status.HTTP_403_FORBIDDEN
             )
 
         serializer = MeasurementSerializer(
-            data=data, context={'user': user, 'point': point, 'data': data}
+            data=data, context={
+                'user': user,
+                'location': location,
+                'data': data
+            }
         )
 
         if serializer.is_valid(raise_exception=True):
@@ -272,7 +281,7 @@ class AQMeasurementsSingleAPIView(MeasurementAPIMixin, APIView):
     API endpoint for a single measurement.
     """
 
-    def patch(self, request, point_id, measurement_id):
+    def patch(self, request, location_id, measurement_id):
         """
         Updates a single measurement.
 
@@ -280,8 +289,8 @@ class AQMeasurementsSingleAPIView(MeasurementAPIMixin, APIView):
         ----------
         request : rest_framework.request.Request
             Represents the request.
-        point_id : int
-            Identifies the point in the database.
+        location_id : int
+            Identifies the location in the database.
         measurement_id : int
             Identifies the measurement in the database.
 
@@ -323,7 +332,7 @@ class AQMeasurementsSingleAPIView(MeasurementAPIMixin, APIView):
 
             return Response(data, status=status.HTTP_200_OK)
 
-    def delete(self, request, point_id, measurement_id):
+    def delete(self, request, location_id, measurement_id):
         """
         Deletes a single measurement.
 
@@ -331,8 +340,8 @@ class AQMeasurementsSingleAPIView(MeasurementAPIMixin, APIView):
         ----------
         request : rest_framework.request.Request
             Represents the request.
-        point_id : int
-            Identifies the point in the database.
+        location_id : int
+            Identifies the location in the database.
         measurement_id : int
             Identifies the measurement in the database.
 
