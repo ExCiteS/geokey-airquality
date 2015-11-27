@@ -253,7 +253,7 @@ class AQMeasurementsAPIView(MeasurementAPIMixin, APIView):
 
         if request.user != location.creator:
             return Response(
-                {'error': 'You have no rights to add a measurement.'},
+                {'error': 'You have no rights to add a new measurement.'},
                 status=status.HTTP_403_FORBIDDEN
             )
 
