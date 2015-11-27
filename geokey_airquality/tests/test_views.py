@@ -237,6 +237,17 @@ class AQMeasurementsAPIViewTest(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(AirQualityMeasurement.objects.count(), 1)
 
+    def test_post_when_no_location(self):
+
+        AirQualityLocation.objects.get(pk=self.location.id).delete()
+        response = self.view(
+            self.request_post,
+            location_id=self.location.id
+        ).render()
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(AirQualityMeasurement.objects.count(), 0)
+
 
 class AQMeasurementsSingleAPIViewTest(TestCase):
 
