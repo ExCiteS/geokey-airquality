@@ -285,7 +285,7 @@ class AQMeasurementsSingleAPIView(MeasurementAPIMixin, APIView):
 
     def patch(self, request, location_id, measurement_id):
         """
-        Updates a single measurement.
+        Updates a single measurement created by the user.
 
         Parameters
         ----------
@@ -336,7 +336,7 @@ class AQMeasurementsSingleAPIView(MeasurementAPIMixin, APIView):
 
     def delete(self, request, location_id, measurement_id):
         """
-        Deletes a single measurement.
+        Deletes a single measurement created by the user.
 
         Parameters
         ----------
