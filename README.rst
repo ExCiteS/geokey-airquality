@@ -1,6 +1,6 @@
 .. image:: https://img.shields.io/travis/ExCiteS/geokey-airquality/master.svg
     :alt: Travis CI Build Status
-    :target: https://travis-ci.org/ExCiteS/airquality
+    :target: https://travis-ci.org/ExCiteS/geokey-airquality
 
 .. image:: https://img.shields.io/coveralls/ExCiteS/geokey-airquality/master.svg
     :alt: Coveralls Test Coverage
