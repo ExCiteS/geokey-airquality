@@ -236,3 +236,98 @@ class AQMeasurementsAPIViewTest(TestCase):
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(AirQualityMeasurement.objects.count(), 1)
+
+
+class AQMeasurementsSingleAPIViewTest(TestCase):
+
+    def setUp(self):
+
+        self.creator = UserF.create()
+        self.user = UserF.create()
+        self.anonym = AnonymousUser()
+
+        self.location_1 = AirQualityLocationF.create(creator=self.creator)
+        self.location_2 = AirQualityLocationF.create(creator=self.user)
+        self.measurement_1 = AirQualityMeasurementF.create(
+            location=self.location_1,
+            creator=self.location_1.creator
+        )
+        self.measurement_2 = AirQualityMeasurementF.create(
+            location=self.location_2,
+            creator=self.location_2.creator
+        )
+
+        self.url = '/api/airquality/locations/%s/measurements/%s/' % (
+            self.location_1.id,
+            self.measurement_1.id
+        )
+        self.factory = APIRequestFactory()
+        self.request_delete = self.factory.delete(
+            self.url,
+            content_type='application/json'
+        )
+        self.view = views.AQMeasurementsSingleAPIView.as_view()
+
+    def test_delete_with_anonymous(self):
+
+        force_authenticate(self.request_delete, user=self.anonym)
+        response = self.view(
+            self.request_delete,
+            location_id=self.location_1.id,
+            measurement_id=self.measurement_1.id
+        ).render()
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(AirQualityMeasurement.objects.count(), 2)
+
+    def test_delete_with_user(self):
+
+        force_authenticate(self.request_delete, user=self.user)
+        response = self.view(
+            self.request_delete,
+            location_id=self.location_1.id,
+            measurement_id=self.measurement_1.id
+        ).render()
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(AirQualityMeasurement.objects.count(), 2)
+
+    def test_delete_with_creator(self):
+
+        force_authenticate(self.request_delete, user=self.creator)
+        response = self.view(
+            self.request_delete,
+            location_id=self.location_1.id,
+            measurement_id=self.measurement_1.id
+        ).render()
+
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(
+            AirQualityMeasurement.objects.filter(
+                pk=self.measurement_1.id).exists(),
+            False
+        )
+
+    def test_delete_when_no_location(self):
+
+        AirQualityLocation.objects.get(pk=self.location_1.id).delete()
+        force_authenticate(self.request_delete, user=self.creator)
+        response = self.view(
+            self.request_delete,
+            location_id=self.location_1.id,
+            measurement_id=self.measurement_1.id
+        ).render()
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_when_no_measurement(self):
+
+        AirQualityMeasurement.objects.get(pk=self.measurement_1.id).delete()
+        force_authenticate(self.request_delete, user=self.creator)
+        response = self.view(
+            self.request_delete,
+            location_id=self.location_1.id,
+            measurement_id=self.measurement_1.id
+        ).render()
+
+        self.assertEqual(response.status_code, 404)
