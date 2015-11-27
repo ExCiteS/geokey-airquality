@@ -1,5 +1,6 @@
 import json
 
+from django.utils import timezone
 from django.test import TestCase
 from django.contrib.auth.models import AnonymousUser
 
@@ -272,12 +273,79 @@ class AQMeasurementsSingleAPIViewTest(TestCase):
             self.location_1.id,
             self.measurement_1.id
         )
+        self.data = {
+            'barcode': self.measurement_1.barcode,
+            'finished': timezone.now().isoformat()
+        }
+
         self.factory = APIRequestFactory()
+        self.request_patch = self.factory.patch(
+            self.url,
+            json.dumps(self.data),
+            content_type='application/json'
+        )
         self.request_delete = self.factory.delete(
             self.url,
             content_type='application/json'
         )
         self.view = views.AQMeasurementsSingleAPIView.as_view()
+
+    def test_patch_with_anonymous(self):
+
+        force_authenticate(self.request_patch, user=self.anonym)
+        response = self.view(
+            self.request_patch,
+            location_id=self.location_1.id,
+            measurement_id=self.measurement_1.id
+        ).render()
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_patch_with_user(self):
+
+        force_authenticate(self.request_patch, user=self.user)
+        response = self.view(
+            self.request_patch,
+            location_id=self.location_1.id,
+            measurement_id=self.measurement_1.id
+        ).render()
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_patch_with_creator(self):
+
+        force_authenticate(self.request_patch, user=self.creator)
+        response = self.view(
+            self.request_patch,
+            location_id=self.location_1.id,
+            measurement_id=self.measurement_1.id
+        ).render()
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_patch_when_no_location(self):
+
+        AirQualityLocation.objects.get(pk=self.location_1.id).delete()
+        force_authenticate(self.request_delete, user=self.creator)
+        response = self.view(
+            self.request_patch,
+            location_id=self.location_1.id,
+            measurement_id=self.measurement_1.id
+        ).render()
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_patch_when_no_measurement(self):
+
+        AirQualityMeasurement.objects.get(pk=self.measurement_1.id).delete()
+        force_authenticate(self.request_delete, user=self.creator)
+        response = self.view(
+            self.request_patch,
+            location_id=self.location_1.id,
+            measurement_id=self.measurement_1.id
+        ).render()
+
+        self.assertEqual(response.status_code, 404)
 
     def test_delete_with_anonymous(self):
 
