@@ -8,7 +8,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from geokey.users.tests.model_factories import UserF
 
 from geokey_airquality import views
-from geokey_airquality.models import AirQualityLocation
+from geokey_airquality.models import AirQualityLocation, AirQualityMeasurement
 from geokey_airquality.tests.model_factories import AirQualityLocationF
 
 
@@ -151,3 +151,62 @@ class AQLocationsSingleAPIViewTest(TestCase):
         ).render()
 
         self.assertEqual(response.status_code, 404)
+
+
+class AQMeasurementsAPIViewTest(TestCase):
+
+    def setUp(self):
+
+        self.creator = UserF.create()
+        self.user = UserF.create()
+        self.anonym = AnonymousUser()
+
+        self.location = AirQualityLocationF.create(creator=self.creator)
+
+        self.url = '/api/airquality/locations/%s/measurements/' % (
+            self.location.id
+        )
+        self.data = {
+            'barcode': 123456
+        }
+
+        self.factory = APIRequestFactory()
+        self.request_post = self.factory.post(
+            self.url,
+            json.dumps(self.data),
+            content_type='application/json'
+        )
+        self.view = views.AQMeasurementsAPIView.as_view()
+
+    def test_post_with_anonymous(self):
+
+        force_authenticate(self.request_post, user=self.anonym)
+        response = self.view(
+            self.request_post,
+            location_id=self.location.id
+        ).render()
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(AirQualityMeasurement.objects.count(), 0)
+
+    def test_post_with_user(self):
+
+        force_authenticate(self.request_post, user=self.user)
+        response = self.view(
+            self.request_post,
+            location_id=self.location.id
+        ).render()
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(AirQualityMeasurement.objects.count(), 0)
+
+    def test_post_with_creator(self):
+
+        force_authenticate(self.request_post, user=self.creator)
+        response = self.view(
+            self.request_post,
+            location_id=self.location.id
+        ).render()
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(AirQualityMeasurement.objects.count(), 1)
