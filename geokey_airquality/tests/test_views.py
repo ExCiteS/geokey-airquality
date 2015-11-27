@@ -93,10 +93,9 @@ class AQLocationsSingleAPIViewTest(TestCase):
         self.user = UserF.create()
         self.anonym = AnonymousUser()
 
-        self.location_1 = AirQualityLocationF.create(creator=self.creator)
-        self.location_2 = AirQualityLocationF.create(creator=UserF.create())
+        self.location = AirQualityLocationF.create(creator=self.creator)
 
-        self.url = '/api/airquality/locations/%s/' % self.location_1.id
+        self.url = '/api/airquality/locations/%s/' % self.location.id
         self.factory = APIRequestFactory()
         self.request_delete = self.factory.delete(
             self.url,
@@ -107,32 +106,44 @@ class AQLocationsSingleAPIViewTest(TestCase):
     def test_delete_with_anonymous(self):
 
         force_authenticate(self.request_delete, user=self.anonym)
-        response = self.view(self.request_delete).render()
+        response = self.view(
+            self.request_delete,
+            location_id=self.location.id
+        ).render()
 
         self.assertEqual(response.status_code, 403)
 
     def test_delete_with_user(self):
 
         force_authenticate(self.request_delete, user=self.user)
-        response = self.view(self.request_delete).render()
+        response = self.view(
+            self.request_delete,
+            location_id=self.location.id
+        ).render()
 
         self.assertEqual(response.status_code, 403)
 
     def test_delete_with_creator(self):
 
         force_authenticate(self.request_delete, user=self.creator)
-        response = self.view(self.request_delete).render()
+        response = self.view(
+            self.request_delete,
+            location_id=self.location.id
+        ).render()
 
         self.assertEqual(response.status_code, 204)
         self.assertEqual(
-            AirQualityLocation.get(pk=self.location_1.id).exists(),
+            AirQualityLocation.objects.filter(pk=self.location.id).exists(),
             False
         )
 
     def test_delete_when_no_project(self):
 
-        AirQualityLocation.get(pk=self.location_1.id).delete()
+        AirQualityLocation.objects.get(pk=self.location.id).delete()
         force_authenticate(self.request_delete, user=self.creator)
-        response = self.view(self.request_delete).render()
+        response = self.view(
+            self.request_delete,
+            location_id=self.location.id
+        ).render()
 
         self.assertEqual(response.status_code, 404)
