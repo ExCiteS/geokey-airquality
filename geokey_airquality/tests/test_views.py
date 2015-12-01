@@ -169,6 +169,30 @@ class AQLocationsSingleAPIViewTest(TestCase):
             False
         )
 
+    def test_delete_when_there_are_measurements(self):
+
+        self.measurement_1 = AirQualityMeasurementF.create(
+            location=self.location,
+            creator=self.location.creator
+        )
+        self.measurement_2 = AirQualityMeasurementF.create(
+            location=self.location,
+            creator=self.location.creator
+        )
+
+        force_authenticate(self.request_delete, user=self.creator)
+        response = self.view(
+            self.request_delete,
+            location_id=self.location.id
+        ).render()
+
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(
+            AirQualityLocation.objects.filter(pk=self.location.id).exists(),
+            False
+        )
+        self.assertEqual(AirQualityMeasurement.objects.count(), 0)
+
     def test_delete_when_no_location(self):
 
         AirQualityLocation.objects.get(pk=self.location.id).delete()
