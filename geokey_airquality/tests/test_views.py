@@ -239,6 +239,25 @@ class AQMeasurementsAPIViewTest(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(AirQualityMeasurement.objects.count(), 1)
 
+    def test_post_when_submitting_and_no_project(self):
+
+        self.data['finished'] = timezone.now().isoformat()
+        self.data['project'] = 158
+        self.data['properties'] = {'results': '12.5'}
+        self.request_post = self.factory.post(
+            self.url,
+            json.dumps(self.data),
+            content_type='application/json'
+        )
+        force_authenticate(self.request_post, user=self.creator)
+        response = self.view(
+            self.request_post,
+            location_id=self.location.id
+        ).render()
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(AirQualityMeasurement.objects.count(), 1)
+
     def test_post_when_submitting(self):
 
         project = ProjectF.create(add_contributors=[self.creator])
@@ -343,6 +362,29 @@ class AQMeasurementsSingleAPIViewTest(TestCase):
         ).render()
 
         self.assertEqual(response.status_code, 200)
+
+    def test_patch_when_submitting_and_no_project(self):
+
+        self.data['project'] = 183
+        self.data['properties'] = {'results': '12.5'}
+        self.request_patch = self.factory.patch(
+            self.url,
+            json.dumps(self.data),
+            content_type='application/json'
+        )
+        force_authenticate(self.request_patch, user=self.creator)
+        response = self.view(
+            self.request_patch,
+            location_id=self.location_1.id,
+            measurement_id=self.measurement_1.id
+        ).render()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            AirQualityMeasurement.objects.filter(
+                pk=self.measurement_1.id).exists(),
+            True
+        )
 
     def test_patch_when_submitting(self):
 
