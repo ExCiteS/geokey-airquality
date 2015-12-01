@@ -7,6 +7,7 @@ from django.contrib.auth.models import AnonymousUser
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from geokey.users.tests.model_factories import UserF
+from geokey.projects.tests.model_factories import ProjectF
 
 from geokey_airquality import views
 from geokey_airquality.models import (
@@ -238,6 +239,26 @@ class AQMeasurementsAPIViewTest(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(AirQualityMeasurement.objects.count(), 1)
 
+    def test_post_when_submitting(self):
+
+        project = ProjectF.create(add_contributors=[self.creator])
+        self.data['finished'] = timezone.now().isoformat()
+        self.data['project'] = project.id
+        self.data['properties'] = {'results': '12.5'}
+        self.request_post = self.factory.post(
+            self.url,
+            json.dumps(self.data),
+            content_type='application/json'
+        )
+        force_authenticate(self.request_post, user=self.creator)
+        response = self.view(
+            self.request_post,
+            location_id=self.location.id
+        ).render()
+
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(AirQualityMeasurement.objects.count(), 0)
+
     def test_post_when_no_location(self):
 
         AirQualityLocation.objects.get(pk=self.location.id).delete()
@@ -322,6 +343,30 @@ class AQMeasurementsSingleAPIViewTest(TestCase):
         ).render()
 
         self.assertEqual(response.status_code, 200)
+
+    def test_patch_when_submitting(self):
+
+        project = ProjectF.create(add_contributors=[self.creator])
+        self.data['project'] = project.id
+        self.data['properties'] = {'results': '12.5'}
+        self.request_patch = self.factory.patch(
+            self.url,
+            json.dumps(self.data),
+            content_type='application/json'
+        )
+        force_authenticate(self.request_patch, user=self.creator)
+        response = self.view(
+            self.request_patch,
+            location_id=self.location_1.id,
+            measurement_id=self.measurement_1.id
+        ).render()
+
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(
+            AirQualityMeasurement.objects.filter(
+                pk=self.measurement_1.id).exists(),
+            False
+        )
 
     def test_patch_when_no_location(self):
 
