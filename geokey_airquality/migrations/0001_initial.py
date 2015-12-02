@@ -11,10 +11,28 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('projects', '0006_remove_admins_contact'),
+        ('categories', '0013_auto_20150130_1440'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
+        migrations.CreateModel(
+            name='AirQualityCategory',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('type', models.CharField(max_length=10, choices=[('1', '<40'), ('2', '40-60'), ('3', '60-80'), ('4', '80-100'), ('5', '100+')])),
+                ('category', models.OneToOneField(related_name='airquality', to='categories.Category')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='AirQualityField',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('type', models.CharField(max_length=10, choices=[('results', 'Results'), ('date_out', 'Date out'), ('time_out', 'Time out'), ('date_collected', 'Date collected'), ('time_collected', 'Time collected'), ('exposure_min', 'Exposure time (min)'), ('distance_from_road', 'Distance from the road'), ('height', 'Height from ground'), ('site_characteristics', 'Site characteristics'), ('additional_details', 'Additional details')])),
+                ('category', models.ForeignKey(related_name='categories', to='geokey_airquality.AirQualityCategory')),
+                ('field', models.OneToOneField(related_name='airquality', to='categories.Field')),
+            ],
+        ),
         migrations.CreateModel(
             name='AirQualityLocation',
             fields=[
@@ -41,7 +59,13 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='AirQualityProject',
             fields=[
-                ('project', models.OneToOneField(related_name='airquality', primary_key=True, serialize=False, to='projects.Project')),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('project', models.OneToOneField(related_name='airquality', to='projects.Project')),
             ],
+        ),
+        migrations.AddField(
+            model_name='airqualitycategory',
+            name='project',
+            field=models.ForeignKey(related_name='categories', to='geokey_airquality.AirQualityProject'),
         ),
     ]
