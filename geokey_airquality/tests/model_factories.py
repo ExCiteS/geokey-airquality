@@ -4,8 +4,21 @@ from django.utils import timezone
 from django.contrib.gis.geos import Point
 
 from geokey.users.tests.model_factories import UserF
+from geokey.projects.tests.model_factories import ProjectF
 
-from geokey_airquality.models import AirQualityLocation, AirQualityMeasurement
+from geokey_airquality.models import (
+    AirQualityProject,
+    AirQualityLocation,
+    AirQualityMeasurement
+)
+
+
+class AirQualityProjectF(factory.django.DjangoModelFactory):
+
+    project = factory.SubFactory(ProjectF)
+
+    class Meta:
+        model = AirQualityProject
 
 
 class AirQualityLocationF(factory.django.DjangoModelFactory):

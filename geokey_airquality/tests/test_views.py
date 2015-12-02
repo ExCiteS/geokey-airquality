@@ -1,11 +1,16 @@
 import json
 
+from django.http import HttpRequest
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django.test import TestCase
 from django.contrib.auth.models import AnonymousUser
+from django.contrib.messages.storage.fallback import FallbackStorage
+from django.contrib.sites.shortcuts import get_current_site
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 
+from geokey import version
 from geokey.users.tests.model_factories import UserF
 from geokey.projects.tests.model_factories import ProjectF
 
@@ -15,9 +20,76 @@ from geokey_airquality.models import (
     AirQualityMeasurement
 )
 from geokey_airquality.tests.model_factories import (
+    AirQualityProjectF,
     AirQualityLocationF,
     AirQualityMeasurementF
 )
+
+
+error_description = 'Managing Air Quality is for superusers only.'
+
+
+class AQIndexViewTest(TestCase):
+
+    def setUp(self):
+
+        self.superuser = UserF.create(**{'is_superuser': True})
+        self.user = UserF.create(**{'is_superuser': False})
+        self.anonym = AnonymousUser()
+
+        self.template = 'aq_index.html'
+        self.view = views.AQIndexView.as_view()
+        self.request = HttpRequest()
+        self.request.method = 'GET'
+
+        setattr(self.request, 'session', 'session')
+        messages = FallbackStorage(self.request)
+        setattr(self.request, '_messages', messages)
+
+        self.project = AirQualityProjectF.create(project=ProjectF.create())
+
+    def test_get_with_anonymous(self):
+
+        self.request.user = self.anonym
+        response = self.view(self.request)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/admin/account/login/', response['location'])
+
+    def test_get_with_user(self):
+
+        self.request.user = self.user
+        response = self.view(self.request).render()
+
+        rendered = render_to_string(
+            self.template,
+            {
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version(),
+                'user': self.request.user,
+                'error': 'Permission denied.',
+                'error_description': error_description
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+
+    def test_get_with_superuser(self):
+
+        self.request.user = self.superuser
+        response = self.view(self.request).render()
+
+        rendered = render_to_string(
+            self.template,
+            {
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version(),
+                'user': self.request.user,
+                'projects': [self.project]
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
 
 
 class AQLocationsAPIViewTest(TestCase):

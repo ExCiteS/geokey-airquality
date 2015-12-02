@@ -5,15 +5,18 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from braces.views import LoginRequiredMixin
 
+from geokey.core.decorators import handle_exceptions_for_ajax
 from geokey.projects.models import Project
 from geokey.projects.serializers import ProjectSerializer
-from geokey.core.decorators import handle_exceptions_for_ajax
+from geokey.categories.models import Category, Field
 from geokey.extensions.views import SuperuserMixin
 
 from geokey_airquality.models import (
+    AirQualityProject,
+    AirQualityCategory,
+    AirQualityField,
     AirQualityLocation,
-    AirQualityMeasurement,
-    AirQualityProject
+    AirQualityMeasurement
 )
 from geokey_airquality.serializers import (
     LocationSerializer,
@@ -23,37 +26,51 @@ from geokey_airquality.serializers import (
 
 class AQIndexView(LoginRequiredMixin, SuperuserMixin, TemplateView):
 
+    """
+    Main page displaying a list of all projects added to Air Quality.
+    """
+
     template_name = 'aq_index.html'
     exception_message = 'Managing Air Quality is for superusers only.'
 
     def get_context_data(self, *args, **kwargs):
-        projects = Project.objects.all()
-        enabled = AirQualityProject.objects.filter(project__in=projects)
+        """
+        Returns the context to render the view. Overwrites the method to add a
+        list of all projects to the context.
+
+        Returns
+        -------
+        dict
+            context
+        """
+
+        projects = AirQualityProject.objects.all()
 
         return super(AQIndexView, self).get_context_data(
             projects=projects,
-            enabled=enabled,
             *args,
             **kwargs
         )
 
-    def update_projects(self, projects, enabled, form=[]):
-        for project in projects:
-            if project in enabled and not str(project.id) in form:
-                AirQualityProject.objects.get(project=project).delete()
-            elif project not in enabled and str(project.id) in form:
-                AirQualityProject.objects.create(project=project)
 
-    def post(self, request):
-        context = self.get_context_data()
+class AQNewView(LoginRequiredMixin, SuperuserMixin, TemplateView):
 
-        self.update_projects(
-            context.get('projects'),
-            [aq.project for aq in context.get('enabled')],
-            self.request.POST.getlist('airquality_project')
-        )
+    """
+    A page for adding a new project to Air Quality.
+    """
 
-        return self.render_to_response(context)
+    template_name = 'aq_new.html'
+    exception_message = 'Managing Air Quality is for superusers only.'
+
+
+class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
+
+    """
+    A page for changing settings of a project, added to Air Quality,
+    """
+
+    template_name = 'aq_project.html'
+    exception_message = 'Managing Air Quality is for superusers only.'
 
 
 class AQProjectsAPIView(APIView):
