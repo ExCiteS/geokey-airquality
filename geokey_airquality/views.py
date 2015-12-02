@@ -27,6 +27,15 @@ from geokey_airquality.serializers import (
 )
 
 
+permission_denied = 'Managing Air Quality is for superusers only.'
+
+
+# ############################################################################
+#
+# Admin Views
+#
+# ############################################################################
+
 class AQIndexView(LoginRequiredMixin, SuperuserMixin, TemplateView):
 
     """
@@ -34,12 +43,12 @@ class AQIndexView(LoginRequiredMixin, SuperuserMixin, TemplateView):
     """
 
     template_name = 'aq_index.html'
-    exception_message = 'Managing Air Quality is for superusers only.'
+    exception_message = permission_denied
 
     def get_context_data(self, *args, **kwargs):
         """
-        Returns the context to render the view. Overwrites the method to add a
-        list of all projects to the context.
+        Returns the context to render the view. Overwrites the method by adding
+        all Air Quality projects to the context.
 
         Returns
         -------
@@ -149,6 +158,11 @@ class AQCategoriesSingleAjaxView(APIView):
         return Response(serializer.data)
 
 
+# ############################################################################
+#
+# Public API Views
+#
+# ############################################################################
 
 class AQProjectsAPIView(APIView):
 
