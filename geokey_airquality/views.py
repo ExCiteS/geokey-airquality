@@ -1,6 +1,7 @@
+import collections
+
 from django.core.exceptions import PermissionDenied
 from django.views.generic import TemplateView
-from django.contrib import messages
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -72,7 +73,35 @@ class AQNewView(LoginRequiredMixin, SuperuserMixin, TemplateView):
     """
 
     template_name = 'aq_new.html'
-    exception_message = 'Managing Air Quality is for superusers only.'
+    exception_message = permission_denied
+
+    def get_context_data(self, *args, **kwargs):
+        """
+        Returns the context to render the view. Overwrites the method by adding
+        all GeoKey projects to the context.
+
+        Returns
+        -------
+        dict
+            context
+        """
+
+        projects = Project.objects.all()
+
+        category_types = collections.OrderedDict(
+            sorted(dict(AirQualityCategory.TYPES).items())
+        )
+        field_types = collections.OrderedDict(
+            sorted(dict(AirQualityField.TYPES).items())
+        )
+
+        return super(AQNewView, self).get_context_data(
+            projects=projects,
+            category_types=category_types,
+            field_types=field_types,
+            *args,
+            **kwargs
+        )
 
 
 class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):

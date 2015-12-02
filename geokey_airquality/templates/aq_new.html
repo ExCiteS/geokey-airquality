@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %} | Air Quality{% endblock %}
+
+{% block main %}
+{% include 'aq_header.html' %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <h3 class="header">Add new project</h3>
+
+            <form role="form" id="form" method="POST" action="{% url 'geokey_airquality:new' %}" novalidate>
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="project" class="control-label">Project</label>
+                    <select class="form-control" id="project" name="project" required>
+                        <option value="">Please select a project</option>
+                        {% for project in projects %}
+                            <option value="{{ project.id }}">{{ project.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div id="categories" class="hidden">
+                    <label class="control-label">Categories</label>
+
+                    {% for type_key, type_value in category_types.items %}
+                        <div class="panel panel-default">
+                            <div class="form-group">
+                                <div class="panel-heading">
+                                    <label for="{{ type_key }}" class="control-label">Category for {{ type_value }} µg/m³</label>
+                                </div>
+
+                                <div class="panel-body">
+                                    <select class="form-control category" id="{{ type_key }}" name="{{ type_key }}" required>
+                                        <option value="">Please select a category</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group panel-body hidden">
+                                <label class="control-label">a</label>
+
+                                <select class="form-control field" required>
+                                    <option value="">Please select a field</option>
+                                </select>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <a role="button" href="{% url 'geokey_airquality:index' %}" class="btn btn-link">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<div role="dialog" class="modal fade" id="modal-error" tabindex="-1" aria-labelledby="modal-error" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content panel-danger">
+            <div class="modal-header panel-heading">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="modal-delete-confirm">Error</h4>
+            </div>
+
+            <div class="modal-body panel-body">
+                <p class="text-center"></p>
+            </div>
+
+            <div class="modal-footer panel-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" aria-hidden="true">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block libraries %}
+<script src="/static/js/admin.control.ajax.js"></script>
+<script src="/static/js/admin.ui.forms.validate.js"></script>
+
+<script>
+var project;
+
+$('#project').on('change', function () {
+    var val = $(this).val();
+
+    $('#categories').addClass('hidden');
+    $('#categories').find('select').each(function () {
+        $(this).children('option:not(:first)').remove();
+    });
+    $('#categories .form-group').removeClass('has-error').find('.help-block').remove();
+
+    if (val) {
+        var url = 'airquality/projects/' + val;
+
+        Control.Ajax.get(url,
+            function (response) {
+                project = response;
+
+                for (var i = 0; i < project.categories.length; i++) {
+                    var textFields = [];
+
+                    for (var x = 0; x < project.categories[i].fields.length; x++) {
+                        if (project.categories[i].fields[x].fieldtype == 'TextField') {
+                            textFields.push(project.categories[i].fields[x]);
+                        }
+                    }
+
+                    project.categories[i].fields = textFields;
+                }
+
+                if (project.categories.length < 5) {
+                    $('#modal-error .modal-body p').text('Project must have at least 5 active categories. Please select another project.');
+                    $('#modal-error').modal('show');
+                } else {
+                    $('#categories').find('select.category').each(function () {
+                        for (var i = 0; i < project.categories.length; i++) {
+                            $(this).append(
+                                $('<option></option>')
+                                    .attr('value', project.categories[i].id)
+                                    .text(project.categories[i].name + ' (' + project.categories[i].fields.length + ')')
+                            );
+                        }
+                    });
+                    $('#categories').removeClass('hidden');
+                }
+            },
+            function (response) {
+                $('#modal-error .modal-body p').text(response.responseJSON.error);
+                $('#modal-error').modal('show');
+                $('#project').prop('selectedIndex', 0);
+            }
+        );
+    }
+});
+
+$('#categories').find('select.category').each(function () {
+    $(this).on('change', function () {
+        var category;
+
+        for (var i = 0; i < project.categories.length; i++) {
+            if ($(this).val() == project.categories[i].id) {
+                category = project.categories[i];
+            }
+        }
+
+        if (category.fields.length < 10) {
+            $('#modal-error .modal-body p').text('Category must have at least 5 active text fields. Please select another category.');
+            $('#modal-error').modal('show');
+            $(this).prop('selectedIndex', 0);
+        } else {
+
+        }
+    });
+});
+</script>
+{% endblock %}
