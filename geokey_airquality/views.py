@@ -1,4 +1,6 @@
+from django.core.exceptions import PermissionDenied
 from django.views.generic import TemplateView
+from django.contrib import messages
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -9,6 +11,7 @@ from geokey.core.decorators import handle_exceptions_for_ajax
 from geokey.projects.models import Project
 from geokey.projects.serializers import ProjectSerializer
 from geokey.categories.models import Category, Field
+from geokey.categories.serializer import CategorySerializer
 from geokey.extensions.views import SuperuserMixin
 
 from geokey_airquality.models import (
@@ -70,7 +73,81 @@ class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
     """
 
     template_name = 'aq_project.html'
-    exception_message = 'Managing Air Quality is for superusers only.'
+    exception_message = permission_denied
+
+
+# ############################################################################
+#
+# AJAX API Views
+#
+# ############################################################################
+
+class AQProjectsSingleAjaxView(APIView):
+    """
+    Ajax API endpoints for a single project.
+    """
+
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id):
+        """
+        Gets the serialized project.
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the request.
+        project_id : int
+            Identifies the project in the database.
+
+        Return
+        ------
+        rest_framework.response.Response
+            Contains the serialised project or an error message.
+        """
+
+        if not request.user.is_superuser:
+            raise PermissionDenied(permission_denied)
+
+        project = Project.objects.get(pk=project_id)
+
+        serializer = ProjectSerializer(project, context={'user': request.user})
+        return Response(serializer.data)
+
+
+class AQCategoriesSingleAjaxView(APIView):
+    """
+    Ajax API endpoints for a single category.
+    """
+
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, category_id):
+        """
+        Gets the serialized category.
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the request.
+        project_id : int
+            Identifies the project in the database.
+        category_id : int
+            Identifies the category in the database.
+
+        Return
+        ------
+        rest_framework.response.Response
+            Contains the serialised category or an error message.
+        """
+
+        if not request.user.is_superuser:
+            raise PermissionDenied(permission_denied)
+
+        project = Project.objects.get(pk=project_id)
+        category = project.categories.get(pk=category_id)
+
+        serializer = CategorySerializer(category)
+        return Response(serializer.data)
+
 
 
 class AQProjectsAPIView(APIView):

@@ -21,6 +21,20 @@ urlpatterns = patterns(
         name='project'),
 
     # ###########################
+    # AJAX
+    # ###########################
+
+    url(r'^ajax/airquality/'
+        r'projects/(?P<project_id>[0-9]+)/$',
+        views.AQProjectsSingleAjaxView.as_view(),
+        name='ajax_projects_single'),
+    url(r'^ajax/airquality/'
+        r'projects/(?P<project_id>[0-9]+)/'
+        r'categories/(?P<category_id>[0-9]+)/$',
+        views.AQCategoriesSingleAjaxView.as_view(),
+        name='ajax_categories_single'),
+
+    # ###########################
     # API
     # ###########################
 

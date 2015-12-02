@@ -11,10 +11,34 @@ class UrlsTests(TestCase):
         reversed_url = reverse('geokey_airquality:index')
         self.assertEqual(reversed_url, '/admin/airquality/')
 
-        resolved = resolve('/admin/airquality/')
+        resolved_url = resolve('/admin/airquality/')
         view = views.AQIndexView
 
-        self.assertEqual(resolved.func.func_name, view.__name__)
+        self.assertEqual(resolved_url.func.func_name, view.__name__)
+
+    def test_new(self):
+
+        reversed_url = reverse('geokey_airquality:new')
+        self.assertEqual(reversed_url, '/admin/airquality/new/')
+
+        resolved_url = resolve('/admin/airquality/new/')
+        view = views.AQNewView
+
+        self.assertEqual(resolved_url.func.func_name, view.__name__)
+
+    def test_project(self):
+
+        reversed_url = reverse(
+            'geokey_airquality:project',
+            kwargs={'project_id': 1}
+        )
+        self.assertEqual(reversed_url, '/admin/airquality/1/')
+
+        resolved_url = resolve('/admin/airquality/1/')
+        view = views.AQProjectView
+
+        self.assertEqual(resolved_url.func.func_name, view.__name__)
+        self.assertEqual(int(resolved_url.kwargs['project_id']), 1)
 
     def test_api_locations(self):
 

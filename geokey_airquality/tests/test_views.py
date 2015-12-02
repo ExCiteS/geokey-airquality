@@ -12,7 +12,10 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 
 from geokey import version
 from geokey.users.tests.model_factories import UserF
+from geokey.projects.models import Project
 from geokey.projects.tests.model_factories import ProjectF
+from geokey.categories.models import Category
+from geokey.categories.tests.model_factories import CategoryFactory
 
 from geokey_airquality import views
 from geokey_airquality.models import (
@@ -26,7 +29,14 @@ from geokey_airquality.tests.model_factories import (
 )
 
 
-error_description = 'Managing Air Quality is for superusers only.'
+permission_denied = 'Managing Air Quality is for superusers only.'
+
+
+# ############################################################################
+#
+# Admin Views
+#
+# ############################################################################
 
 
 class AQIndexViewTest(TestCase):
@@ -68,7 +78,7 @@ class AQIndexViewTest(TestCase):
                 'GEOKEY_VERSION': version.get_version(),
                 'user': self.request.user,
                 'error': 'Permission denied.',
-                'error_description': error_description
+                'error_description': permission_denied
             }
         )
         self.assertEqual(response.status_code, 200)
@@ -91,6 +101,184 @@ class AQIndexViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode('utf-8'), rendered)
 
+
+# ############################################################################
+#
+# AJAX API Views
+#
+# ############################################################################
+
+class AQProjectsSingleAjaxViewTest(TestCase):
+
+    def setUp(self):
+
+        self.superuser = UserF.create(**{'is_superuser': True})
+        self.creator = UserF.create(**{'is_superuser': False})
+        self.user = UserF.create(**{'is_superuser': False})
+        self.anonym = AnonymousUser()
+
+        self.project = ProjectF.create(add_contributors=[self.creator])
+
+        self.url = '/ajax/airquality/projects/%s/' % self.project.id
+
+        self.factory = APIRequestFactory()
+        self.request_get = self.factory.get(self.url)
+        self.view = views.AQProjectsSingleAjaxView.as_view()
+
+    def test_get_with_anonymous(self):
+
+        force_authenticate(self.request_get, user=self.anonym)
+        response = self.view(
+            self.request_get,
+            project_id=self.project.id
+        ).render()
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_with_user(self):
+
+        force_authenticate(self.request_get, user=self.user)
+        response = self.view(
+            self.request_get,
+            project_id=self.project.id
+        ).render()
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_with_creator(self):
+
+        force_authenticate(self.request_get, user=self.creator)
+        response = self.view(
+            self.request_get,
+            project_id=self.project.id
+        ).render()
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_with_superuser(self):
+
+        force_authenticate(self.request_get, user=self.superuser)
+        response = self.view(
+            self.request_get,
+            project_id=self.project.id
+        ).render()
+        project = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(project['id'], self.project.id)
+
+    def test_get_when_no_project(self):
+
+        Project.objects.get(pk=self.project.id).delete()
+        force_authenticate(self.request_get, user=self.superuser)
+        response = self.view(
+            self.request_get,
+            project_id=self.project.id
+        ).render()
+
+        self.assertEqual(response.status_code, 404)
+
+
+class AQCategoriesSingleAjaxViewTest(TestCase):
+
+    def setUp(self):
+
+        self.superuser = UserF.create(**{'is_superuser': True})
+        self.creator = UserF.create(**{'is_superuser': False})
+        self.user = UserF.create(**{'is_superuser': False})
+        self.anonym = AnonymousUser()
+
+        self.project = ProjectF.create(add_contributors=[self.creator])
+        self.category = CategoryFactory.create(
+            creator=self.creator,
+            project=self.project
+        )
+
+        self.url = '/ajax/airquality/projects/%s/categories/%s/' % (
+            self.project.id,
+            self.category.id
+        )
+
+        self.factory = APIRequestFactory()
+        self.request_get = self.factory.get(self.url)
+        self.view = views.AQCategoriesSingleAjaxView.as_view()
+
+    def test_get_with_anonymous(self):
+
+        force_authenticate(self.request_get, user=self.anonym)
+        response = self.view(
+            self.request_get,
+            project_id=self.project.id,
+            category_id=self.category.id
+        ).render()
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_with_user(self):
+
+        force_authenticate(self.request_get, user=self.user)
+        response = self.view(
+            self.request_get,
+            project_id=self.project.id,
+            category_id=self.category.id
+        ).render()
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_with_creator(self):
+
+        force_authenticate(self.request_get, user=self.creator)
+        response = self.view(
+            self.request_get,
+            project_id=self.project.id,
+            category_id=self.category.id
+        ).render()
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_with_superuser(self):
+
+        force_authenticate(self.request_get, user=self.superuser)
+        response = self.view(
+            self.request_get,
+            project_id=self.project.id,
+            category_id=self.category.id
+        ).render()
+        category = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(category['id'], self.category.id)
+
+    def test_get_when_no_project(self):
+
+        Project.objects.get(pk=self.project.id).delete()
+        force_authenticate(self.request_get, user=self.superuser)
+        response = self.view(
+            self.request_get,
+            project_id=self.project.id,
+            category_id=self.category.id
+        ).render()
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_when_no_category(self):
+
+        Category.objects.get(pk=self.category.id).delete()
+        force_authenticate(self.request_get, user=self.superuser)
+        response = self.view(
+            self.request_get,
+            project_id=self.project.id,
+            category_id=self.category.id
+        ).render()
+
+        self.assertEqual(response.status_code, 404)
+
+
+# ############################################################################
+#
+# Public API Views
+#
+# ############################################################################
 
 class AQLocationsAPIViewTest(TestCase):
 
