@@ -185,7 +185,7 @@ class AQLocationsAPIView(APIView):
 
         Returns
         -------
-        rest_framework.response.Respone
+        rest_framework.response.Response
             Contains the serialised locations.
         """
 
@@ -257,7 +257,7 @@ class AQLocationsSingleAPIView(APIView):
 
         Returns
         -------
-        rest_framework.response.Respone
+        rest_framework.response.Response
             Contains empty response indicating successful delete or an error
             message.
         """
@@ -392,7 +392,7 @@ class AQMeasurementsSingleAPIView(MeasurementAPIMixin, APIView):
 
         Returns
         -------
-        rest_framework.response.Respone
+        rest_framework.response.Response
             Contains the serialised measurement or an error message.
         """
 
@@ -443,7 +443,7 @@ class AQMeasurementsSingleAPIView(MeasurementAPIMixin, APIView):
 
         Returns
         -------
-        rest_framework.response.Respone
+        rest_framework.response.Response
             Contains empty response indicating successful delete or an error
             message.
         """
