@@ -134,7 +134,12 @@ $('#project').on('change', function () {
                 }
             },
             function (response) {
-                $('#modal-error .modal-body p').text(response.responseJSON.error);
+                if (response.responseJSON && response.responseJSON.error) {
+                    $('#modal-error .modal-body p').text(response.responseJSON.error);
+                } else {
+                    $('#modal-error .modal-body p').text('An unknown error occurred.');
+                }
+
                 $('#modal-error').modal('show');
                 $('#project').prop('selectedIndex', 0);
             }
