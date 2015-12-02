@@ -153,7 +153,7 @@ $('#categories').find('select.category').each(function () {
         }
 
         if (category.fields.length < 10) {
-            $('#modal-error .modal-body p').text('Category must have at least 5 active text fields. Please select another category.');
+            $('#modal-error .modal-body p').text('Category must have at least 10 active text fields. Please select another category.');
             $('#modal-error').modal('show');
             $(this).prop('selectedIndex', 0);
         } else {
