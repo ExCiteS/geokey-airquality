@@ -7,6 +7,10 @@ from django_pgjson.fields import JsonBField
 
 class AirQualityProject(models.Model):
 
+    """
+    Air Quality Project - relation to GeoKey project.
+    """
+
     project = models.OneToOneField(
         'projects.Project',
         related_name='airquality'
@@ -14,6 +18,11 @@ class AirQualityProject(models.Model):
 
 
 class AirQualityCategory(models.Model):
+
+    """
+    Air Quality Category - relation to GeoKey category. Can only be one of the
+    possible types.
+    """
 
     TYPES = (
         (u'1', u'<40'),
@@ -35,6 +44,11 @@ class AirQualityCategory(models.Model):
 
 
 class AirQualityField(models.Model):
+
+    """
+    Air Quality Field - relation to GeoKey field. Can only be one of the
+    possible types.
+    """
 
     TYPES = (
         (u'results', u'Results'),
@@ -62,6 +76,11 @@ class AirQualityField(models.Model):
 
 class AirQualityLocation(models.Model):
 
+    """
+    Air Quality Location: holds a single point, to which many measurements can
+    be related, also additional properties.
+    """
+
     name = models.CharField(max_length=100)
     geometry = gis.GeometryField(geography=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
@@ -70,6 +89,11 @@ class AirQualityLocation(models.Model):
 
 
 class AirQualityMeasurement(models.Model):
+
+    """
+    Air Quality Measurement: holds information about when the measurement was
+    started, finished, also additional properties.
+    """
 
     location = models.ForeignKey(
         'AirQualityLocation',
