@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %} | Air Quality{% endblock %}
+{% block title %} | Air Quality: Add new project{% endblock %}
 
 {% block main %}
 {% include 'aq_header.html' %}
@@ -28,24 +28,26 @@
 
                     {% for type_key, type_value in category_types.items %}
                         <div class="panel panel-default">
-                            <div class="form-group">
-                                <div class="panel-heading">
+                            <div class="panel-body">
+                                <div class="form-group">
                                     <label for="{{ type_key }}" class="control-label">Category for {{ type_value }} µg/m³</label>
-                                </div>
-
-                                <div class="panel-body">
                                     <select class="form-control category" id="{{ type_key }}" name="{{ type_key }}" required>
                                         <option value="">Please select a category</option>
                                     </select>
                                 </div>
-                            </div>
 
-                            <div class="form-group panel-body hidden">
-                                <label class="control-label">a</label>
-
-                                <select class="form-control field" required>
-                                    <option value="">Please select a field</option>
-                                </select>
+                                <div class="panel panel-default fields hidden">
+                                    <div class="panel-body bg-info">
+                                        {% for type_key, type_value in field_types.items %}
+                                            <div class="form-group">
+                                                <label for="{{ type_key }}" class="control-label">{{ type_value }} field</label>
+                                                <select class="form-control field" id="{{ type_key }}" name="{{ type_key }}" required>
+                                                    <option value="">Please select a field</option>
+                                                </select>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     {% endfor %}
@@ -70,9 +72,7 @@
                 <h4 class="modal-title" id="modal-delete-confirm">Error</h4>
             </div>
 
-            <div class="modal-body panel-body">
-                <p class="text-center"></p>
-            </div>
+            <div class="modal-body panel-body"><p></p></div>
 
             <div class="modal-footer panel-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal" aria-hidden="true">OK</button>

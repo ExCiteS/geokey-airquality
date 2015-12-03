@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %} | Air Quality: Project {{ project.project.name }}{% endblock %}
+
+{% block main %}
+{% include 'aq_header.html' %}
+
+<div class="container">
+    <div class="row">
+
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<div role="dialog" class="modal fade" id="modal-error" tabindex="-1" aria-labelledby="modal-error" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content panel-danger">
+            <div class="modal-header panel-heading">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="modal-delete-confirm">Error</h4>
+            </div>
+
+            <div class="modal-body panel-body"><p></p></div>
+
+            <div class="modal-footer panel-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" aria-hidden="true">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block libraries %}
+<script src="/static/js/admin.ui.forms.validate.js"></script>
+<script src="/static/js/aq.ui.js"></script>
+{% endblock %}
