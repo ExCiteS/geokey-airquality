@@ -11,7 +11,7 @@ class AirQualityProject(models.Model):
     Air Quality Project - relation to GeoKey project.
     """
 
-    project = models.OneToOneField(
+    project = models.ForeignKey(
         'projects.Project',
         related_name='airquality'
     )
@@ -31,9 +31,9 @@ class AirQualityCategory(models.Model):
         (u'4', u'80-100'),
         (u'5', u'100+')
     )
-    type = models.CharField(max_length=10, null=False, choices=TYPES)
+    type = models.CharField(max_length=25, null=False, choices=TYPES)
 
-    category = models.OneToOneField(
+    category = models.ForeignKey(
         'categories.Category',
         related_name='airquality'
     )
@@ -62,15 +62,15 @@ class AirQualityField(models.Model):
         (u'site_characteristics', u'Site characteristics'),
         (u'additional_details', u'Additional details')
     )
-    type = models.CharField(max_length=10, null=False, choices=TYPES)
+    type = models.CharField(max_length=25, null=False, choices=TYPES)
 
-    field = models.OneToOneField(
+    field = models.ForeignKey(
         'categories.Field',
         related_name='airquality'
     )
     category = models.ForeignKey(
         'AirQualityCategory',
-        related_name='categories'
+        related_name='fields'
     )
 
 
