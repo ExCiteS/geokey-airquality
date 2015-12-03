@@ -105,6 +105,90 @@ class AQNewView(LoginRequiredMixin, SuperuserMixin, TemplateView):
             **kwargs
         )
 
+    def post(self, request):
+        """
+        Adds a project.
+
+        Parameters
+        ----------
+        request : django.http.HttpRequest
+            Represents the request.
+
+        Returns
+        -------
+        django.http.HttpResponseRedirect
+            When project is added, the success message is rendered, when
+            redirected to the project page.
+        django.http.HttpResponse
+            Rendered template with an error message.
+        """
+
+        data = request.POST
+        context = self.get_context_data()
+
+        missing = False
+        project = data.get('project')
+        categories = {}
+
+        for key, value in context.get('category_types').items():
+            categories[key] = data.get(key)
+
+            if not key:
+                missing = True
+
+        field_types = context.get('field_types')
+
+        for key, value in field_types.items():
+            for entry in data.getlist(key):
+                if not entry:
+                    missing = True
+
+        if project and missing is False:
+            try:
+                project = Project.objects.get(pk=project)
+                aq_project = AirQualityProject.objects.create(project=project)
+
+                try:
+                    for key, value in categories.items():
+                        category = Category.objects.get(pk=value)
+                        aq_category = AirQualityCategory.objects.create(
+                            type=context.get('category_types').get(key),
+                            category=category,
+                            project=aq_project
+                        )
+
+                        index = int(key) - 1
+
+                        try:
+                            for key, value in field_types.items():
+                                list = data.getlist(key)
+                                field = list[index]
+
+                                field = Field.objects.get(pk=field)
+                                AirQualityField.objects.create(
+                                    type=field_types.get(key),
+                                    field=field,
+                                    category=aq_category
+                                )
+
+                            messages.success(
+                                self.request,
+                                'The project has been added.'
+                            )
+                            return redirect(
+                                'geokey_airquality:project',
+                                aq_project.id
+                            )
+                        except Field.DoesNotExist:
+                            messages.error(self.request, 'Field not found.')
+                except Category.DoesNotExist:
+                    messages.error(self.request, 'Category not found.')
+            except Project.DoesNotExist:
+                messages.error(self.request, 'Project not found.')
+
+        messages.error(self.request, 'An error occurred.')
+        return self.render_to_response(context)
+
 
 class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
 
