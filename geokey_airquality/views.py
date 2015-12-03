@@ -170,19 +170,24 @@ class AQAddView(LoginRequiredMixin, SuperuserMixin, TemplateView):
                                     field=field,
                                     category=aq_category
                                 )
-
-                            messages.success(
-                                self.request,
-                                'The project has been added.'
-                            )
-                            return redirect(
-                                'geokey_airquality:project',
-                                aq_project.id
-                            )
                         except Field.DoesNotExist:
                             messages.error(self.request, 'Field not found.')
+                            aq_project.delete()
+                            return self.render_to_response(context)
+
                 except Category.DoesNotExist:
                     messages.error(self.request, 'Category not found.')
+                    aq_project.delete()
+                    return self.render_to_response(context)
+
+                messages.success(
+                    self.request,
+                    'The project has been added.'
+                )
+                return redirect(
+                    'geokey_airquality:project',
+                    aq_project.id
+                )
             except Project.DoesNotExist:
                 messages.error(self.request, 'Project not found.')
 
