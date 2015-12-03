@@ -1,5 +1,25 @@
 {% extends 'base.html' %}
 
+{% block bodydata %}
+data-project="{{ project.project.id }}"
+
+{% for category in project.categories.all %}
+    {% for c_type_key, c_type_value in category_types.items %}
+        {% if category.type == c_type_value %}
+            data-category_{{ c_type_key }}={{ category.category.id }}
+        {% endif %}
+    {% endfor %}
+
+    {% for field in category.fields.all %}
+        {% for f_type_key, f_type_value in field_types.items %}
+            {% if field.type == f_type_value %}
+                data-category_{{ category.category.id }}_field__{{ f_type_key }}={{ field.field.id }}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+{% endfor %}
+{% endblock %}
+
 {% block title %} | Air Quality: Project {{ project.project.name }}{% endblock %}
 
 {% block main %}
@@ -7,7 +27,76 @@
 
 <div class="container">
     <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <h3 class="header">Project {{ project.project.name }}</h3>
 
+            <form role="form" id="form" method="POST" action="{% url 'geokey_airquality:project' project.id %}" novalidate>
+                {% csrf_token %}
+
+                <div class="form-group hidden">
+                    <label for="project" class="control-label">Project</label>
+                    <select class="form-control" id="project" name="project" required>
+                        <option value="">Please select a project</option>
+                        {% for project in projects %}
+                            <option value="{{ project.id }}">{{ project.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div id="categories" class="hidden">
+                    <label class="control-label">Categories</label>
+
+                    {% for type_key, type_value in category_types.items %}
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="form-group">
+                                    <label for="{{ type_key }}" class="control-label">Category for {{ type_value }} µg/m³</label>
+                                    <select class="form-control category" id="{{ type_key }}" name="{{ type_key }}" required>
+                                        <option value="">Please select a category</option>
+                                    </select>
+                                </div>
+
+                                <div class="panel panel-default fields hidden">
+                                    <div class="panel-body bg-info">
+                                        {% for type_key, type_value in field_types.items %}
+                                            <div class="form-group">
+                                                <label for="{{ type_key }}" class="control-label">{{ type_value }} field</label>
+                                                <select class="form-control field" id="{{ type_key }}" name="{{ type_key }}" data-ftk="{{ type_key }}" required>
+                                                    <option value="">Please select a field</option>
+                                                </select>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <a role="button" href="{% url 'geokey_airquality:index' %}" class="btn btn-link">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="panel panel-danger">
+                <div class="panel-heading">
+                    <h2 class="panel-title">Be careful!</h2>
+                </div>
+
+                <div class="panel-body becareful">
+                    <div>
+                        <strong>Remove project</strong>
+                        <p>Removing a project cannot be undone, but it will not delete a project from the database.</p>
+                        <a href="#" class="text-danger" data-toggle="modal" data-target="#modal-remove-confirm">Remove</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -29,9 +118,35 @@
         </div>
     </div>
 </div>
+
+<div role="dialog" class="modal fade" id="modal-remove-confirm" tabindex="-1" aria-labelledby="modal-remove-confirm" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content panel-danger">
+            <div class="modal-header panel-heading">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="modal-delete-confirm">Are you sure?</h4>
+            </div>
+
+            <div class="modal-body panel-body">
+                <p>Before you remove the project, please read through the consequences of this action:</p>
+
+                <ul>
+                    <li>The project and all of its settings will be removed from the Air Quality database.</li>
+                    <li>It will not be possible to add new measurements to the project using the app.</li>
+                    <li>The project and its data remain untouched.</li>
+                </ul>
+            </div>
+
+            <div class="modal-footer panel-footer">
+                <a role="button" href="{% url 'geokey_airquality:remove' project.id %}" class="btn btn-danger" data-loader="true">Yes, remove this project</a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block libraries %}
+<script src="/static/js/admin.control.ajax.js"></script>
 <script src="/static/js/admin.ui.forms.validate.js"></script>
 <script src="/static/js/aq.ui.js"></script>
 {% endblock %}

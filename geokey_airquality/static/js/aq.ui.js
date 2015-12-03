@@ -1,6 +1,7 @@
 $(document).ready(function() {
     var project;
     var categories = $('#categories');
+    var projectLoadedEvent = new Event('project-loaded');
 
     // Displays an error message
     function error(message) {
@@ -35,24 +36,24 @@ $(document).ready(function() {
                         error('Project must have at least 5 active categories. Please select another project from the list.');
                     } else {
                         // For each project's categories leave only text fields
-                        for (var i = 0; i < project.categories.length; i++) {
+                        $.each(project.categories, function(index, category) {
                             var textFields = [];
 
-                            for (var x = 0; x < project.categories[i].fields.length; x++) {
-                                if (project.categories[i].fields[x].fieldtype == 'TextField') {
-                                    textFields.push(project.categories[i].fields[x]);
+                            $.each(category.fields, function(index, field) {
+                                if (field.fieldtype == 'TextField') {
+                                    textFields.push(field);
                                 }
-                            }
+                            });
 
-                            project.categories[i].fields = textFields;
-                        }
+                            category.fields = textFields;
+                        });
 
                         // Make options for select field of project's categories
                         var options = [];
 
-                        for (var i = 0; i < project.categories.length; i++) {
-                            options.push('<option value="' + project.categories[i].id + '">' + project.categories[i].name + ' (' + project.categories[i].fields.length + ')</option>');
-                        }
+                        $.each(project.categories, function(index, category) {
+                            options.push('<option value="' + category.id + '">' + category.name + ' (' + category.fields.length + ')</option>');
+                        });
 
                         // Populate categories with project's categories
                         categories.find('select.category').each(function() {
@@ -61,6 +62,9 @@ $(document).ready(function() {
 
                         // Show ready categories
                         categories.removeClass('hidden');
+
+                        // Inform window that the project has been loaded
+                        window.dispatchEvent(projectLoadedEvent);
                     }
                 },
                 function(response) {
@@ -82,7 +86,7 @@ $(document).ready(function() {
     categories.find('select.category').each(function() {
         $(this).on('change', function() {
             // Clear and hide the structure of fields
-            var fields = $(this).parent().parent().find('.fields');
+            var fields = $(this).closest('.panel').find('.fields');
             fields.addClass('hidden');
             fields.find('select').each(function() {
                 $(this).children('option:not(:first)').remove();
@@ -113,7 +117,7 @@ $(document).ready(function() {
                 }
 
                 // Populate fields with category's fields
-                $(this).parent().parent().find('select.field').each(function() {
+                $(this).closest('.panel').find('select.field').each(function() {
                     $(this).append(options);
                 });
 
@@ -122,4 +126,31 @@ $(document).ready(function() {
             }
         });
     });
+
+    // If project is already set...
+    var data = $('body').data();
+
+    if (data.project) {
+        // Set project as selected
+        $('select#project').val(data.project).trigger('change');
+        delete data.project;
+
+        window.addEventListener('project-loaded', function(event) {
+            // Set categories and fields as selected
+            var fields = {};
+
+            $.each(data, function(key, value) {
+                if (key.indexOf('_field_') === -1) {
+                    $('select#' + key.replace('category_', '')).val(value).trigger('change');
+                } else {
+                    fields[key] = value;
+                }
+            });
+
+            $.each(fields, function(key, value) {
+                key = key.replace('category_', '').replace('field_', '').split('__');
+                categories.find('option[value="' + key[0] + '"]:selected').closest('.panel').find('select[name="' + key[1] + '"]').val(value).trigger('change');
+            });
+        }, false);
+    }
 });
