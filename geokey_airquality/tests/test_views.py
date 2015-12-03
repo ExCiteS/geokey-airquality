@@ -1,4 +1,5 @@
 import json
+import collections
 
 from django.http import HttpRequest
 from django.template.loader import render_to_string
@@ -19,6 +20,9 @@ from geokey.categories.tests.model_factories import CategoryFactory
 
 from geokey_airquality import views
 from geokey_airquality.models import (
+    AirQualityProject,
+    AirQualityCategory,
+    AirQualityField,
     AirQualityLocation,
     AirQualityMeasurement
 )
@@ -96,6 +100,169 @@ class AQIndexViewTest(TestCase):
                 'GEOKEY_VERSION': version.get_version(),
                 'user': self.request.user,
                 'projects': [self.project]
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+
+
+class AQNewViewTest(TestCase):
+
+    def setUp(self):
+
+        self.superuser = UserF.create(**{'is_superuser': True})
+        self.user = UserF.create(**{'is_superuser': False})
+        self.anonym = AnonymousUser()
+
+        self.template = 'aq_new.html'
+        self.view = views.AQNewView.as_view()
+        self.request = HttpRequest()
+        self.request.method = 'GET'
+
+        setattr(self.request, 'session', 'session')
+        messages = FallbackStorage(self.request)
+        setattr(self.request, '_messages', messages)
+
+        self.project = ProjectF.create()
+
+        self.category_types = collections.OrderedDict(
+            sorted(dict(AirQualityCategory.TYPES).items())
+        )
+        self.field_types = collections.OrderedDict(
+            sorted(dict(AirQualityField.TYPES).items())
+        )
+
+    def test_get_with_anonymous(self):
+
+        self.request.user = self.anonym
+        response = self.view(self.request)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/admin/account/login/', response['location'])
+
+    def test_get_with_user(self):
+
+        self.request.user = self.user
+        response = self.view(self.request).render()
+
+        rendered = render_to_string(
+            self.template,
+            {
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version(),
+                'user': self.request.user,
+                'error': 'Permission denied.',
+                'error_description': permission_denied
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+
+    def test_get_with_superuser(self):
+
+        self.request.user = self.superuser
+        response = self.view(self.request).render()
+
+        rendered = render_to_string(
+            self.template,
+            {
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version(),
+                'user': self.request.user,
+                'projects': [self.project],
+                'category_types': self.category_types,
+                'field_types': self.field_types
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+
+
+class AQProjectViewTest(TestCase):
+
+    def setUp(self):
+
+        self.superuser = UserF.create(**{'is_superuser': True})
+        self.user = UserF.create(**{'is_superuser': False})
+        self.anonym = AnonymousUser()
+
+        self.template = 'aq_project.html'
+        self.view = views.AQProjectView.as_view()
+        self.request = HttpRequest()
+        self.request.method = 'GET'
+
+        setattr(self.request, 'session', 'session')
+        messages = FallbackStorage(self.request)
+        setattr(self.request, '_messages', messages)
+
+        self.project = AirQualityProjectF.create()
+
+        self.category_types = collections.OrderedDict(
+            sorted(dict(AirQualityCategory.TYPES).items())
+        )
+        self.field_types = collections.OrderedDict(
+            sorted(dict(AirQualityField.TYPES).items())
+        )
+
+    def test_get_with_anonymous(self):
+
+        self.request.user = self.anonym
+        response = self.view(self.request, project_id=self.project.id)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/admin/account/login/', response['location'])
+
+    def test_get_with_user(self):
+
+        self.request.user = self.user
+        response = self.view(self.request, project_id=self.project.id).render()
+
+        rendered = render_to_string(
+            self.template,
+            {
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version(),
+                'user': self.request.user,
+                'error': 'Permission denied.',
+                'error_description': permission_denied
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+
+    def test_get_with_superuser(self):
+
+        self.request.user = self.superuser
+        response = self.view(self.request, project_id=self.project.id).render()
+
+        rendered = render_to_string(
+            self.template,
+            {
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version(),
+                'user': self.request.user,
+                'project': self.project,
+                'category_types': self.category_types,
+                'field_types': self.field_types
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+
+    def test_get_when_no_project(self):
+
+        AirQualityProject.objects.get(pk=self.project.id).delete()
+        self.request.user = self.superuser
+        response = self.view(self.request, project_id=self.project.id).render()
+
+        rendered = render_to_string(
+            self.template,
+            {
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version(),
+                'user': self.request.user,
+                'error': 'Not found.',
+                'error_description': 'Project not found.'
             }
         )
         self.assertEqual(response.status_code, 200)
