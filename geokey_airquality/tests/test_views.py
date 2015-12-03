@@ -106,7 +106,7 @@ class AQIndexViewTest(TestCase):
         self.assertEqual(response.content.decode('utf-8'), rendered)
 
 
-class AQNewViewTest(TestCase):
+class AQAddViewTest(TestCase):
 
     def setUp(self):
 
@@ -114,8 +114,8 @@ class AQNewViewTest(TestCase):
         self.user = UserF.create(**{'is_superuser': False})
         self.anonym = AnonymousUser()
 
-        self.template = 'aq_new.html'
-        self.view = views.AQNewView.as_view()
+        self.template = 'aq_add.html'
+        self.view = views.AQAddView.as_view()
         self.request = HttpRequest()
         self.request.method = 'GET'
 
@@ -195,7 +195,8 @@ class AQProjectViewTest(TestCase):
         messages = FallbackStorage(self.request)
         setattr(self.request, '_messages', messages)
 
-        self.project = AirQualityProjectF.create()
+        self.project = ProjectF.create()
+        self.aq_project = AirQualityProjectF.create(project=self.project)
 
         self.category_types = collections.OrderedDict(
             sorted(dict(AirQualityCategory.TYPES).items())
@@ -207,7 +208,10 @@ class AQProjectViewTest(TestCase):
     def test_get_with_anonymous(self):
 
         self.request.user = self.anonym
-        response = self.view(self.request, project_id=self.project.id)
+        response = self.view(
+            self.request,
+            project_id=self.aq_project.id
+        )
 
         self.assertEqual(response.status_code, 302)
         self.assertIn('/admin/account/login/', response['location'])
@@ -215,7 +219,10 @@ class AQProjectViewTest(TestCase):
     def test_get_with_user(self):
 
         self.request.user = self.user
-        response = self.view(self.request, project_id=self.project.id).render()
+        response = self.view(
+            self.request,
+            project_id=self.aq_project.id
+        ).render()
 
         rendered = render_to_string(
             self.template,
@@ -233,7 +240,10 @@ class AQProjectViewTest(TestCase):
     def test_get_with_superuser(self):
 
         self.request.user = self.superuser
-        response = self.view(self.request, project_id=self.project.id).render()
+        response = self.view(
+            self.request,
+            project_id=self.aq_project.id
+        ).render()
 
         rendered = render_to_string(
             self.template,
@@ -241,7 +251,8 @@ class AQProjectViewTest(TestCase):
                 'PLATFORM_NAME': get_current_site(self.request).name,
                 'GEOKEY_VERSION': version.get_version(),
                 'user': self.request.user,
-                'project': self.project,
+                'projects': [self.project],
+                'project': self.aq_project,
                 'category_types': self.category_types,
                 'field_types': self.field_types
             }
@@ -251,9 +262,12 @@ class AQProjectViewTest(TestCase):
 
     def test_get_when_no_project(self):
 
-        AirQualityProject.objects.get(pk=self.project.id).delete()
+        AirQualityProject.objects.get(pk=self.aq_project.id).delete()
         self.request.user = self.superuser
-        response = self.view(self.request, project_id=self.project.id).render()
+        response = self.view(
+            self.request,
+            project_id=self.aq_project.id
+        ).render()
 
         rendered = render_to_string(
             self.template,

@@ -16,13 +16,13 @@ class UrlsTests(TestCase):
 
         self.assertEqual(resolved_url.func.func_name, view.__name__)
 
-    def test_new(self):
+    def test_add(self):
 
-        reversed_url = reverse('geokey_airquality:new')
-        self.assertEqual(reversed_url, '/admin/airquality/new/')
+        reversed_url = reverse('geokey_airquality:add')
+        self.assertEqual(reversed_url, '/admin/airquality/add/')
 
-        resolved_url = resolve('/admin/airquality/new/')
-        view = views.AQNewView
+        resolved_url = resolve('/admin/airquality/add/')
+        view = views.AQAddView
 
         self.assertEqual(resolved_url.func.func_name, view.__name__)
 
@@ -36,6 +36,20 @@ class UrlsTests(TestCase):
 
         resolved_url = resolve('/admin/airquality/1/')
         view = views.AQProjectView
+
+        self.assertEqual(resolved_url.func.func_name, view.__name__)
+        self.assertEqual(int(resolved_url.kwargs['project_id']), 1)
+
+    def test_remove(self):
+
+        reversed_url = reverse(
+            'geokey_airquality:remove',
+            kwargs={'project_id': 1}
+        )
+        self.assertEqual(reversed_url, '/admin/airquality/1/remove/')
+
+        resolved_url = resolve('/admin/airquality/1/remove/')
+        view = views.AQRemoveView
 
         self.assertEqual(resolved_url.func.func_name, view.__name__)
         self.assertEqual(int(resolved_url.kwargs['project_id']), 1)

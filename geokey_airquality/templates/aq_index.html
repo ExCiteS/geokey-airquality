@@ -12,7 +12,7 @@
                 <span>Manage projects</span>
 
                 {% if projects %}
-                    <a role="button" href="{% url 'geokey_airquality:new' %}" class="btn btn-sm btn-success pull-right">
+                    <a role="button" href="{% url 'geokey_airquality:add' %}" class="btn btn-sm btn-success pull-right">
                         <span class="glyphicon glyphicon-plus"></span>
                         <span>Add new project</span>
                     </a>
@@ -30,7 +30,7 @@
                     <div class="well empty-list">
                         <p class="lead">We couldn't find any projects you are eligible to manage.</p>
                         <p>You can add a new project if you want it to be used with the Air Quality app.</p>
-                        <a href="{% url 'geokey_airquality:new' %}" class="btn btn-lg btn-success">Add a new project</a>
+                        <a href="{% url 'geokey_airquality:add' %}" class="btn btn-lg btn-success">Add a new project</a>
                     </div>
                 </li>
                 {% endfor %}

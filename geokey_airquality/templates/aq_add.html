@@ -10,7 +10,7 @@
         <div class="col-md-8 col-md-offset-2">
             <h3 class="header">Add new project</h3>
 
-            <form role="form" id="form" method="POST" action="{% url 'geokey_airquality:new' %}" novalidate>
+            <form role="form" id="form" method="POST" action="{% url 'geokey_airquality:add' %}" novalidate>
                 {% csrf_token %}
 
                 <div class="form-group">

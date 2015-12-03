@@ -13,12 +13,15 @@ urlpatterns = patterns(
     url(r'^admin/airquality/$',
         views.AQIndexView.as_view(),
         name='index'),
-    url(r'^admin/airquality/new/$',
-        views.AQNewView.as_view(),
-        name='new'),
+    url(r'^admin/airquality/add/$',
+        views.AQAddView.as_view(),
+        name='add'),
     url(r'^admin/airquality/(?P<project_id>[0-9]+)/$',
         views.AQProjectView.as_view(),
         name='project'),
+    url(r'^admin/airquality/(?P<project_id>[0-9]+)/remove/$',
+        views.AQRemoveView.as_view(),
+        name='remove'),
 
     # ###########################
     # AJAX

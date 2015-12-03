@@ -68,13 +68,13 @@ class AQIndexView(LoginRequiredMixin, SuperuserMixin, TemplateView):
         )
 
 
-class AQNewView(LoginRequiredMixin, SuperuserMixin, TemplateView):
+class AQAddView(LoginRequiredMixin, SuperuserMixin, TemplateView):
 
     """
     A page for adding a new project to Air Quality.
     """
 
-    template_name = 'aq_new.html'
+    template_name = 'aq_add.html'
     exception_message = permission_denied
 
     def get_context_data(self, *args, **kwargs):
@@ -97,7 +97,7 @@ class AQNewView(LoginRequiredMixin, SuperuserMixin, TemplateView):
             sorted(dict(AirQualityField.TYPES).items())
         )
 
-        return super(AQNewView, self).get_context_data(
+        return super(AQAddView, self).get_context_data(
             projects=projects,
             category_types=category_types,
             field_types=field_types,
@@ -211,6 +211,8 @@ class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
             context
         """
 
+        projects = Project.objects.all()
+
         try:
             project = AirQualityProject.objects.get(pk=project_id)
         except AirQualityProject.DoesNotExist:
@@ -227,12 +229,23 @@ class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
         )
 
         return super(AQProjectView, self).get_context_data(
+            projects=projects,
             project=project,
             category_types=category_types,
             field_types=field_types,
             *args,
             **kwargs
         )
+
+
+class AQRemoveView(LoginRequiredMixin, SuperuserMixin, TemplateView):
+
+    """
+    A page for removing a project, added to Air Quality,
+    """
+
+    template_name = 'base.html'
+    exception_message = permission_denied
 
 
 # ############################################################################
