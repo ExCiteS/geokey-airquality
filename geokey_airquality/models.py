@@ -30,7 +30,7 @@ class AirQualityProject(StatusModel, TimeStampedModel):
 def post_save_project(sender, instance, **kwargs):
     """
     Receiver that is called after a project is saved. Removes it from Air
-    Quality, when original project is deleted.
+    Quality, when original project is marked as deleted.
     """
     if instance.status == 'deleted':
         try:
