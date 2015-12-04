@@ -298,7 +298,7 @@ class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
             try:
                 error = False
 
-                project = Project.objects.get(pk=project)
+                project = Project.objects.get(pk=project, status='active')
                 aq_project = AirQualityProject.objects.get(pk=project_id)
 
                 # Changing project should not be allowed, but just in case...
