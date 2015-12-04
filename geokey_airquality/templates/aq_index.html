@@ -23,7 +23,8 @@
                 {% for project in projects %}
                 <li>
                     <h3><a href="{% url 'geokey_airquality:project' project.id %}">{{ project.project.name }}</a></h3>
-                    <p class="meta">Created by {{ project.project.creator.display_name }} {{ project.project.created_at|timesince }} ago</p>
+                    <p>{% if project.status == 'inactive' %}<a href="{% url 'geokey_airquality:project' project.id %}" class="label label-default" data-loader="true">Inactive</a>{% endif %}</p>
+                    <p class="meta">Added by {{ project.creator.display_name }} {{ project.created|timesince }} ago</p>
                 </li>
                 {% empty %}
                 <li>
