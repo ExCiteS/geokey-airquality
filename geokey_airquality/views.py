@@ -192,10 +192,7 @@ class AQAddView(LoginRequiredMixin, SuperuserMixin, TemplateView):
                     self.request,
                     'The project has been added.'
                 )
-                return redirect(
-                    'geokey_airquality:project',
-                    aq_project.id
-                )
+                return redirect('geokey_airquality:index')
             except Project.DoesNotExist:
                 messages.error(self.request, 'Project not found.')
 
