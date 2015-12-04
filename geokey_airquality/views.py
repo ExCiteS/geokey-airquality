@@ -215,6 +215,11 @@ class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
         all Air Quality project, available category and field types to the
         context.
 
+        Parameters
+        ----------
+        project_id : int
+            Identifies the project in the database.
+
         Returns
         -------
         dict
