@@ -659,6 +659,32 @@ class AQCategoriesSingleAjaxViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(category['id'], self.category.id)
 
+    def test_get_when_project_marked_as_inactive(self):
+
+        self.project.status = 'inactive'
+        self.project.save()
+        force_authenticate(self.request_get, user=self.superuser)
+        response = self.view(
+            self.request_get,
+            project_id=self.project.id,
+            category_id=self.category.id
+        ).render()
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_when_project_marked_as_deleted(self):
+
+        self.project.status = 'deleted'
+        self.project.save()
+        force_authenticate(self.request_get, user=self.superuser)
+        response = self.view(
+            self.request_get,
+            project_id=self.project.id,
+            category_id=self.category.id
+        ).render()
+
+        self.assertEqual(response.status_code, 404)
+
     def test_get_when_no_project(self):
 
         Project.objects.get(pk=self.project.id).delete()

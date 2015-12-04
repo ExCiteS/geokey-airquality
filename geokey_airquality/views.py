@@ -464,7 +464,7 @@ class AQCategoriesSingleAjaxView(APIView):
         if not request.user.is_superuser:
             raise PermissionDenied(permission_denied)
 
-        project = Project.objects.get(pk=project_id)
+        project = Project.objects.get(pk=project_id, status='active')
         category = project.categories.get(pk=category_id)
 
         serializer = CategorySerializer(category)
