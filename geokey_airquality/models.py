@@ -12,7 +12,7 @@ from model_utils import Choices
 from model_utils.models import StatusModel, TimeStampedModel
 
 from geokey.projects.models import Project
-from geokey.categories.models import Category
+from geokey.categories.models import Category, TextField
 
 
 def email_user(template, subject, receiver, action,
@@ -84,8 +84,8 @@ def post_save_project(sender, instance, **kwargs):
             pass
 
 
-@receiver(models.signals.post_delete, sender=Project)
-def post_delete_project(sender, instance, **kwargs):
+@receiver(models.signals.pre_delete, sender=Project)
+def pre_delete_project(sender, instance, **kwargs):
     """
     Receiver that is called after a project is deleted. Removes it from Air
     Quality.
@@ -163,8 +163,8 @@ def post_save_category(sender, instance, **kwargs):
             pass
 
 
-@receiver(models.signals.post_delete, sender=Category)
-def post_delete_category(sender, instance, **kwargs):
+@receiver(models.signals.pre_delete, sender=Category)
+def pre_delete_category(sender, instance, **kwargs):
     """
     Receiver that is called after a category is deleted. Makes associated Air
     Quality project inactive.
@@ -220,6 +220,64 @@ class AirQualityField(models.Model):
         'AirQualityCategory',
         related_name='fields'
     )
+
+
+@receiver(models.signals.post_save, sender=TextField)
+def post_save_field(sender, instance, **kwargs):
+    """
+    Receiver that is called after a text field is saved. Makes associated Air
+    Quality project inactive, if field is no longer active.
+    """
+    if instance.status != 'active':
+        try:
+            field = AirQualityField.objects.get(field=instance)
+            field.category.project.status = 'inactive'
+            field.category.project.save()
+            user = field.category.project.creator
+            field.delete()
+
+            action = 'made inactive'
+
+            email_user(
+                'emails/field_not_active.txt',
+                'Field %s %s' % (instance.name, action),
+                user,
+                action,
+                instance.category.project.name,
+                instance.category.name,
+                instance.name
+            )
+        except AirQualityField.DoesNotExist:
+            pass
+
+
+@receiver(models.signals.pre_delete, sender=TextField)
+def pre_delete_field(sender, instance, **kwargs):
+    """
+    Receiver that is called after a text field is deleted. Makes associated Air
+    Quality project inactive.
+    """
+
+    try:
+        field = AirQualityField.objects.get(field=instance)
+        field.category.project.status = 'inactive'
+        field.category.project.save()
+        user = field.category.project.creator
+        field.delete()
+
+        action = 'deleted'
+
+        email_user(
+            'emails/field_not_active.txt',
+            'Field %s %s' % (instance.name, action),
+            user,
+            action,
+            instance.category.project.name,
+            instance.category.name,
+            instance.name
+        )
+    except AirQualityField.DoesNotExist:
+        pass
 
 
 class AirQualityLocation(models.Model):

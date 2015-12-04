@@ -1,0 +1,5 @@
+Dear {{ receiver }},
+
+The field {{ field_name }} of category {{ category_name }} (project {{ project_name }}) was just {{ action }}. This action resulted in project being inactive for Air Quality measurements. That means, it is no more possible to submit new finished measurements to this project until issues are being resolved.
+
+This is automated message, please do not respond to this email.
