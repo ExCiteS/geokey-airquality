@@ -697,6 +697,19 @@ class AQCategoriesSingleAjaxViewTest(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
+    def test_get_when_category_marked_as_inactive(self):
+
+        self.category.status = 'inactive'
+        self.category.save()
+        force_authenticate(self.request_get, user=self.superuser)
+        response = self.view(
+            self.request_get,
+            project_id=self.project.id,
+            category_id=self.category.id
+        ).render()
+
+        self.assertEqual(response.status_code, 404)
+
     def test_get_when_no_category(self):
 
         Category.objects.get(pk=self.category.id).delete()
