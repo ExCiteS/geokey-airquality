@@ -1,6 +1,9 @@
 from django.conf import settings
+from django.core import mail
 from django.dispatch import receiver
 from django.db import models
+from django.template import Context
+from django.template.loader import get_template
 from django.contrib.gis.db import models as gis
 
 from django_pgjson.fields import JsonBField
@@ -9,6 +12,29 @@ from model_utils import Choices
 from model_utils.models import StatusModel, TimeStampedModel
 
 from geokey.projects.models import Project
+
+
+def email_user(template, subject, receiver, action, project_name):
+
+    message = get_template(
+        template
+    ).render(Context({
+        'receiver': receiver.display_name,
+        'project_name': project_name,
+        'action': action
+    }))
+
+    message = mail.EmailMessage(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [receiver.email]
+    )
+
+    connection = mail.get_connection()
+    connection.open()
+    connection.send_messages([message])
+    connection.close()
 
 
 class AirQualityProject(StatusModel, TimeStampedModel):
@@ -30,14 +56,53 @@ class AirQualityProject(StatusModel, TimeStampedModel):
 def post_save_project(sender, instance, **kwargs):
     """
     Receiver that is called after a project is saved. Removes it from Air
-    Quality, when original project is marked as deleted.
+    Quality, when original project is marked as deleted or inactive.
     """
-    if instance.status == 'deleted':
+    if instance.status != 'active':
         try:
             project = AirQualityProject.objects.get(project=instance)
+            user = project.creator
             project.delete()
+
+            if instance.status == 'inactive':
+                action = 'made inactive'
+            else:
+                action = 'deleted'
+
+            email_user(
+                'emails/project_not_active.txt',
+                'Project %s %s' % (instance.name, action),
+                user,
+                action,
+                instance.name
+            )
         except AirQualityProject.DoesNotExist:
             pass
+
+
+@receiver(models.signals.post_delete, sender=Project)
+def post_delete_project(sender, instance, **kwargs):
+    """
+    Receiver that is called after a project is deleted. Removes it from Air
+    Quality.
+    """
+
+    try:
+        project = AirQualityProject.objects.get(project=instance)
+        user = project.creator
+        project.delete()
+
+        action = 'deleted'
+
+        email_user(
+            'emails/project_not_active.txt',
+            'Project %s %s' % (instance.name, action),
+            user,
+            action,
+            instance.name
+        )
+    except AirQualityProject.DoesNotExist:
+        pass
 
 
 class AirQualityCategory(models.Model):
