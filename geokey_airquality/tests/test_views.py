@@ -1,5 +1,6 @@
 import json
 import collections
+import operator
 
 from django.http import HttpRequest
 from django.template.loader import render_to_string
@@ -129,7 +130,10 @@ class AQAddViewTest(TestCase):
             sorted(dict(AirQualityCategory.TYPES).items())
         )
         self.field_types = collections.OrderedDict(
-            sorted(dict(AirQualityField.TYPES).items())
+            sorted(
+                dict(AirQualityField.TYPES).items(),
+                key=operator.itemgetter(1)
+            )
         )
 
     def test_get_with_anonymous(self):
@@ -202,7 +206,10 @@ class AQProjectViewTest(TestCase):
             sorted(dict(AirQualityCategory.TYPES).items())
         )
         self.field_types = collections.OrderedDict(
-            sorted(dict(AirQualityField.TYPES).items())
+            sorted(
+                dict(AirQualityField.TYPES).items(),
+                key=operator.itemgetter(1)
+            )
         )
 
     def test_get_with_anonymous(self):
