@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.dispatch import receiver
 from django.db import models
 from django.contrib.gis.db import models as gis
 
@@ -6,6 +7,8 @@ from django_pgjson.fields import JsonBField
 
 from model_utils import Choices
 from model_utils.models import StatusModel, TimeStampedModel
+
+from geokey.projects.models import Project
 
 
 class AirQualityProject(StatusModel, TimeStampedModel):
@@ -21,6 +24,20 @@ class AirQualityProject(StatusModel, TimeStampedModel):
         'projects.Project',
         related_name='airquality'
     )
+
+
+@receiver(models.signals.post_save, sender=Project)
+def post_save_project(sender, instance, **kwargs):
+    """
+    Receiver that is called after a project is saved. Removes it from Air
+    Quality, when original project is deleted.
+    """
+    if instance.status == 'deleted':
+        try:
+            project = AirQualityProject.objects.get(project=instance)
+            project.delete()
+        except AirQualityProject.DoesNotExist:
+            pass
 
 
 class AirQualityCategory(models.Model):

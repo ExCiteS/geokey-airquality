@@ -622,6 +622,21 @@ class AQProjectsAPIViewTest(TestCase):
         self.assertEqual(len(projects), 1)
         self.assertEqual(projects[0]['id'], self.project_1.id)
 
+    def test_get_when_original_project_deleted(self):
+
+        self.aq_project_3 = AirQualityProjectF.create(
+            project=self.project_3
+        )
+        self.project_3.delete()
+
+        force_authenticate(self.request_get, user=self.contributor)
+        response = self.view(self.request_get).render()
+        projects = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(projects), 1)
+        self.assertEqual(AirQualityProject.objects.count(), 2)
+
 
 class AQLocationsAPIViewTest(TestCase):
 
