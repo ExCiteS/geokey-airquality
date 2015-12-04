@@ -4,7 +4,9 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 import django_pgjson.fields
 import django.contrib.gis.db.models.fields
+import django.utils.timezone
 from django.conf import settings
+import model_utils.fields
 
 
 class Migration(migrations.Migration):
@@ -28,7 +30,7 @@ class Migration(migrations.Migration):
             name='AirQualityField',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('type', models.CharField(max_length=25, choices=[('results', 'Results'), ('date_out', 'Date out'), ('time_out', 'Time out'), ('date_collected', 'Date collected'), ('time_collected', 'Time collected'), ('exposure_min', 'Exposure time (min)'), ('distance_from_road', 'Distance from the road'), ('height', 'Height from ground'), ('site_characteristics', 'Site characteristics'), ('additional_details', 'Additional details')])),
+                ('type', models.CharField(max_length=50, choices=[('results', '01. Results'), ('date_out', '02. Date out'), ('time_out', '03. Time out'), ('date_collected', '04. Date collected'), ('time_collected', '05. Time collected'), ('exposure_min', '06. Exposure time (min)'), ('distance_from_road', '07. Distance from the road'), ('height', '08. Height from ground'), ('site_characteristics', '09. Site characteristics'), ('additional_details', '10. Additional details')])),
                 ('category', models.ForeignKey(related_name='fields', to='geokey_airquality.AirQualityCategory')),
                 ('field', models.ForeignKey(related_name='airquality', to='categories.Field')),
             ],
@@ -60,8 +62,16 @@ class Migration(migrations.Migration):
             name='AirQualityProject',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, verbose_name='created', editable=False)),
+                ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, verbose_name='modified', editable=False)),
+                ('status', model_utils.fields.StatusField(default=b'active', max_length=100, verbose_name='status', no_check_for_status=True, choices=[(b'active', b'active'), (b'inactive', b'inactive')])),
+                ('status_changed', model_utils.fields.MonitorField(default=django.utils.timezone.now, verbose_name='status changed', monitor='status')),
+                ('creator', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
                 ('project', models.ForeignKey(related_name='airquality', to='projects.Project')),
             ],
+            options={
+                'abstract': False,
+            },
         ),
         migrations.AddField(
             model_name='airqualitycategory',

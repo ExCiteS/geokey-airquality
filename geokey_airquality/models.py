@@ -4,13 +4,19 @@ from django.contrib.gis.db import models as gis
 
 from django_pgjson.fields import JsonBField
 
+from model_utils import Choices
+from model_utils.models import StatusModel, TimeStampedModel
 
-class AirQualityProject(models.Model):
+
+class AirQualityProject(StatusModel, TimeStampedModel):
 
     """
     Air Quality Project - relation to GeoKey project.
     """
 
+    STATUS = Choices('active', 'inactive')
+
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     project = models.ForeignKey(
         'projects.Project',
         related_name='airquality'
@@ -51,18 +57,18 @@ class AirQualityField(models.Model):
     """
 
     TYPES = (
-        (u'results', u'Results'),
-        (u'date_out', u'Date out'),
-        (u'time_out', u'Time out'),
-        (u'date_collected', u'Date collected'),
-        (u'time_collected', u'Time collected'),
-        (u'exposure_min', u'Exposure time (min)'),
-        (u'distance_from_road', u'Distance from the road'),
-        (u'height', u'Height from ground'),
-        (u'site_characteristics', u'Site characteristics'),
-        (u'additional_details', u'Additional details')
+        (u'results', u'01. Results'),
+        (u'date_out', u'02. Date out'),
+        (u'time_out', u'03. Time out'),
+        (u'date_collected', u'04. Date collected'),
+        (u'time_collected', u'05. Time collected'),
+        (u'exposure_min', u'06. Exposure time (min)'),
+        (u'distance_from_road', u'07. Distance from the road'),
+        (u'height', u'08. Height from ground'),
+        (u'site_characteristics', u'09. Site characteristics'),
+        (u'additional_details', u'10. Additional details')
     )
-    type = models.CharField(max_length=25, null=False, choices=TYPES)
+    type = models.CharField(max_length=50, null=False, choices=TYPES)
 
     field = models.ForeignKey(
         'categories.Field',

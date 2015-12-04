@@ -1,4 +1,5 @@
 import collections
+import operator
 
 from django.core.exceptions import PermissionDenied
 from django.views.generic import TemplateView
@@ -94,7 +95,10 @@ class AQAddView(LoginRequiredMixin, SuperuserMixin, TemplateView):
             sorted(dict(AirQualityCategory.TYPES).items())
         )
         field_types = collections.OrderedDict(
-            sorted(dict(AirQualityField.TYPES).items())
+            sorted(
+                dict(AirQualityField.TYPES).items(),
+                key=operator.itemgetter(1)
+            )
         )
 
         return super(AQAddView, self).get_context_data(
@@ -146,7 +150,11 @@ class AQAddView(LoginRequiredMixin, SuperuserMixin, TemplateView):
         if project and missing is False:
             try:
                 project = Project.objects.get(pk=project)
-                aq_project = AirQualityProject.objects.create(project=project)
+                aq_project = AirQualityProject.objects.create(
+                    status='active',
+                    creator=request.user,
+                    project=project
+                )
 
                 try:
                     for key, value in categories.items():
@@ -230,7 +238,10 @@ class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
             sorted(dict(AirQualityCategory.TYPES).items())
         )
         field_types = collections.OrderedDict(
-            sorted(dict(AirQualityField.TYPES).items())
+            sorted(
+                dict(AirQualityField.TYPES).items(),
+                key=operator.itemgetter(1)
+            )
         )
 
         return super(AQProjectView, self).get_context_data(
