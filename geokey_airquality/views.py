@@ -225,7 +225,7 @@ class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
             context
         """
 
-        projects = Project.objects.all()
+        projects = Project.objects.filter(status='active')
 
         try:
             project = AirQualityProject.objects.get(pk=project_id)

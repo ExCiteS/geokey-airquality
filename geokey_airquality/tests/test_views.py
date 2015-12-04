@@ -313,6 +313,58 @@ class AQProjectViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode('utf-8'), rendered)
 
+    def test_get_when_project_marked_as_inactive(self):
+
+        self.new_project = ProjectF.create()
+        self.new_project.status = 'inactive'
+        self.new_project.save()
+        self.request.user = self.superuser
+        response = self.view(
+            self.request,
+            project_id=self.aq_project.id
+        ).render()
+
+        rendered = render_to_string(
+            self.template,
+            {
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version(),
+                'user': self.request.user,
+                'projects': [self.project],
+                'project': self.aq_project,
+                'category_types': self.category_types,
+                'field_types': self.field_types
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+
+    def test_get_when_project_marked_as_deleted(self):
+
+        self.new_project = ProjectF.create()
+        self.new_project.status = 'deleted'
+        self.new_project.save()
+        self.request.user = self.superuser
+        response = self.view(
+            self.request,
+            project_id=self.aq_project.id
+        ).render()
+
+        rendered = render_to_string(
+            self.template,
+            {
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version(),
+                'user': self.request.user,
+                'projects': [self.project],
+                'project': self.aq_project,
+                'category_types': self.category_types,
+                'field_types': self.field_types
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+
     def test_get_when_no_project(self):
 
         AirQualityProject.objects.get(pk=self.aq_project.id).delete()
