@@ -19,7 +19,7 @@
                     <select class="form-control" id="project" name="project" required>
                         <option value="">Please select a project</option>
                         {% for project in projects %}
-                            <option value="{{ project.id }}">{{ project.name }}</option>
+                            <option value="{{ project.id }}">{{ project.name }} ({{ project.categories.count }})</option>
                         {% endfor %}
                     </select>
                 </div>
