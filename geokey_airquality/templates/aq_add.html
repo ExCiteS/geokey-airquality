@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load staticfiles %}
 
 {% block title %} | Air Quality: Add new project{% endblock %}
 
@@ -21,6 +22,10 @@
                             <option value="{{ project.id }}">{{ project.name }}</option>
                         {% endfor %}
                     </select>
+                </div>
+
+                <div id="loader" class="form-group text-center hidden">
+                    <img src="{% static 'img/loader.gif' %}" alt="Loading project..." />
                 </div>
 
                 <div id="categories" class="hidden">

@@ -1,5 +1,6 @@
 $(document).ready(function() {
     var project;
+    var loader = $('#loader');
     var categories = $('#categories');
     var projectLoadedEvent = new Event('project-loaded');
 
@@ -26,6 +27,9 @@ $(document).ready(function() {
         // If project is selected, build structure of categories
         if (val) {
             var url = 'airquality/projects/' + val;
+
+            // Show loader
+            loader.removeClass('hidden');
 
             Control.Ajax.get(url,
                 function(response) {
@@ -66,6 +70,9 @@ $(document).ready(function() {
                         // Inform window that the project has been loaded
                         window.dispatchEvent(projectLoadedEvent);
                     }
+
+                    // Hide loader
+                    loader.addClass('hidden');
                 },
                 function(response) {
                     // Show error message
@@ -77,6 +84,9 @@ $(document).ready(function() {
 
                     // Make sure no project is selected
                     $('select#project').prop('selectedIndex', 0);
+
+                    // Hide loader
+                    loader.addClass('hidden');
                 }
             );
         }
