@@ -12,15 +12,19 @@ from model_utils import Choices
 from model_utils.models import StatusModel, TimeStampedModel
 
 from geokey.projects.models import Project
+from geokey.categories.models import Category
 
 
-def email_user(template, subject, receiver, action, project_name):
+def email_user(template, subject, receiver, action,
+               project_name=None, category_name=None, field_name=None):
 
     message = get_template(
         template
     ).render(Context({
         'receiver': receiver.display_name,
         'project_name': project_name,
+        'category_name': category_name,
+        'field_name': field_name,
         'action': action
     }))
 
@@ -129,6 +133,62 @@ class AirQualityCategory(models.Model):
         'AirQualityProject',
         related_name='categories'
     )
+
+
+@receiver(models.signals.post_save, sender=Category)
+def post_save_category(sender, instance, **kwargs):
+    """
+    Receiver that is called after a category is saved. Makes associated Air
+    Quality project inactive, if category is no longer active.
+    """
+    if instance.status != 'active':
+        try:
+            category = AirQualityCategory.objects.get(category=instance)
+            category.project.status = 'inactive'
+            category.project.save()
+            user = category.project.creator
+            category.delete()
+
+            action = 'made inactive'
+
+            email_user(
+                'emails/category_not_active.txt',
+                'Category %s %s' % (instance.name, action),
+                user,
+                action,
+                instance.project.name,
+                instance.name
+            )
+        except AirQualityCategory.DoesNotExist:
+            pass
+
+
+@receiver(models.signals.post_delete, sender=Category)
+def post_delete_category(sender, instance, **kwargs):
+    """
+    Receiver that is called after a category is deleted. Makes associated Air
+    Quality project inactive.
+    """
+
+    try:
+        category = AirQualityCategory.objects.get(category=instance)
+        category.project.status = 'inactive'
+        category.project.save()
+        user = category.project.creator
+        category.delete()
+
+        action = 'deleted'
+
+        email_user(
+            'emails/category_not_active.txt',
+            'Category %s %s' % (instance.name, action),
+            user,
+            action,
+            instance.project.name,
+            instance.name
+        )
+    except AirQualityCategory.DoesNotExist:
+        pass
 
 
 class AirQualityField(models.Model):
