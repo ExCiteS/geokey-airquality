@@ -182,7 +182,6 @@ class AQAddView(LoginRequiredMixin, SuperuserMixin, TemplateView):
                             messages.error(self.request, 'Field not found.')
                             aq_project.delete()
                             return self.render_to_response(context)
-
                 except Category.DoesNotExist:
                     messages.error(self.request, 'Category not found.')
                     aq_project.delete()
@@ -254,6 +253,110 @@ class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
             *args,
             **kwargs
         )
+
+    def post(self, request, project_id):
+        """
+        Updates a project.
+
+        Parameters
+        ----------
+        request : django.http.HttpRequest
+            Represents the request.
+        project_id : int
+            Identifies the project in the database.
+
+        Returns
+        -------
+        django.http.HttpResponseRedirect
+            When project is updated, the success message is rendered, when
+            redirected to the index page.
+        django.http.HttpResponse
+            Rendered template with an error message.
+        """
+
+        data = request.POST
+        context = self.get_context_data(project_id)
+
+        missing = False
+        project = data.get('project')
+        categories = {}
+
+        for key, value in context.get('category_types').items():
+            categories[key] = data.get(key)
+
+            if not key:
+                missing = True
+
+        field_types = context.get('field_types')
+
+        for key, value in field_types.items():
+            for entry in data.getlist(key):
+                if not entry:
+                    missing = True
+
+        if project and missing is False:
+            try:
+                error = False
+
+                project = Project.objects.get(pk=project)
+                aq_project = AirQualityProject.objects.get(pk=project_id)
+
+                # Changing project should not be allowed, but just in case...
+                if aq_project.project != project:
+                    aq_project.project = project
+
+                aq_project.status = 'active'
+                aq_project.save()
+
+                try:
+                    for key, value in categories.items():
+                        category = Category.objects.get(pk=value)
+                        aq_category = AirQualityCategory.objects.get(
+                            type=context.get('category_types').get(key),
+                            project=aq_project
+                        )
+
+                        index = int(key) - 1
+
+                        if aq_category.category != category:
+                            aq_category.category = category
+                            aq_category.save()
+
+                        try:
+                            for key, value in field_types.items():
+                                list = data.getlist(key)
+                                field = list[index]
+
+                                field = Field.objects.get(pk=field)
+                                aq_field = AirQualityField.objects.get(
+                                    type=field_types.get(key),
+                                    category=aq_category
+                                )
+
+                                if aq_field.field != field:
+                                    aq_field.field = field
+                                    aq_field.save()
+                        except Field.DoesNotExist:
+                            messages.error(self.request, 'Field not found.')
+                            aq_project.delete()
+                            error = True
+                except Category.DoesNotExist:
+                    messages.error(self.request, 'Category not found.')
+                    aq_project.delete()
+                    error = True
+
+                if error is False:
+                    messages.success(
+                        self.request,
+                        'The project has been updated.'
+                    )
+            except Project.DoesNotExist:
+                messages.error(self.request, 'Project not found.')
+
+            return redirect('geokey_airquality:index')
+
+        messages.error(self.request, 'An error occurred.')
+        return self.render_to_response(context)
 
 
 class AQRemoveView(LoginRequiredMixin, SuperuserMixin, TemplateView):
