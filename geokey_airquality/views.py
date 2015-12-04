@@ -430,7 +430,7 @@ class AQProjectsSingleAjaxView(APIView):
         if not request.user.is_superuser:
             raise PermissionDenied(permission_denied)
 
-        project = Project.objects.get(pk=project_id)
+        project = Project.objects.get(pk=project_id, status='active')
 
         serializer = ProjectSerializer(project, context={'user': request.user})
         return Response(serializer.data)
