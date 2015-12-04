@@ -158,7 +158,10 @@ class AQAddView(LoginRequiredMixin, SuperuserMixin, TemplateView):
 
                 try:
                     for key, value in categories.items():
-                        category = Category.objects.get(pk=value)
+                        category = Category.objects.get(
+                            pk=value,
+                            status='active'
+                        )
                         aq_category = AirQualityCategory.objects.create(
                             type=context.get('category_types').get(key),
                             category=category,
@@ -172,7 +175,10 @@ class AQAddView(LoginRequiredMixin, SuperuserMixin, TemplateView):
                                 list = data.getlist(key)
                                 field = list[index]
 
-                                field = Field.objects.get(pk=field)
+                                field = Field.objects.get(
+                                    pk=field,
+                                    status='active'
+                                )
                                 AirQualityField.objects.create(
                                     type=field_types.get(key),
                                     field=field,
@@ -310,7 +316,10 @@ class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
 
                 try:
                     for key, value in categories.items():
-                        category = Category.objects.get(pk=value)
+                        category = Category.objects.get(
+                            pk=value,
+                            status='active'
+                        )
                         aq_category = AirQualityCategory.objects.get(
                             type=context.get('category_types').get(key),
                             project=aq_project
@@ -327,7 +336,10 @@ class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
                                 list = data.getlist(key)
                                 field = list[index]
 
-                                field = Field.objects.get(pk=field)
+                                field = Field.objects.get(
+                                    pk=field,
+                                    status='active'
+                                )
                                 aq_field = AirQualityField.objects.get(
                                     type=field_types.get(key),
                                     category=aq_category
