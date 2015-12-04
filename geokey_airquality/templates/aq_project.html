@@ -30,6 +30,12 @@ data-project="{{ project.project.id }}"
         <div class="col-md-8 col-md-offset-2">
             <h3 class="header">Project {{ project.project.name }}</h3>
 
+            {% if project.status == 'inactive' %}
+                <div role="alert" class="alert alert-warning">
+                    <p>This project is inactive. This is probably some categories or fields were deleted from the original project. Please fix all missing values in order to activate.</p>
+                </div>
+            {% endif %}
+
             <form role="form" id="form" method="POST" action="{% url 'geokey_airquality:project' project.id %}" novalidate>
                 {% csrf_token %}
 
