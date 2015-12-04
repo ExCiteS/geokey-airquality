@@ -15,6 +15,8 @@ from geokey_airquality.models import (
 
 class AirQualityProjectF(factory.django.DjangoModelFactory):
 
+    status = 'active'
+    creator = factory.SubFactory(UserF)
     project = factory.SubFactory(ProjectF)
 
     class Meta:
