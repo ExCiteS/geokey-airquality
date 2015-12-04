@@ -149,7 +149,7 @@ class AQAddView(LoginRequiredMixin, SuperuserMixin, TemplateView):
 
         if project and missing is False:
             try:
-                project = Project.objects.get(pk=project)
+                project = Project.objects.get(pk=project, status='active')
                 aq_project = AirQualityProject.objects.create(
                     status='active',
                     creator=request.user,
