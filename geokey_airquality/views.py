@@ -265,6 +265,35 @@ class AQRemoveView(LoginRequiredMixin, SuperuserMixin, TemplateView):
     template_name = 'base.html'
     exception_message = permission_denied
 
+    def get(self, request, project_id):
+        """
+        Removes a project.
+
+        Parameters
+        ----------
+        request : django.http.HttpRequest
+            Represents the request.
+        project_id : int
+            Identifies the project in the database.
+
+        Returns
+        -------
+        django.http.HttpResponseRedirect
+            When project is removed, the success message is rendered, when
+            redirected to the index page.
+        django.http.HttpResponse
+            Renders success or error message.
+        """
+
+        try:
+            project = AirQualityProject.objects.get(pk=project_id)
+            project.delete()
+            messages.success(self.request, 'The project has been removed.')
+        except AirQualityProject.DoesNotExist:
+            messages.error(self.request, 'Project not found.')
+
+        return redirect('geokey_airquality:index')
+
 
 # ############################################################################
 #

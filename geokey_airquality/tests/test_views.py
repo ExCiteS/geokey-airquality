@@ -17,7 +17,10 @@ from geokey.users.tests.model_factories import UserF
 from geokey.projects.models import Project
 from geokey.projects.tests.model_factories import ProjectF
 from geokey.categories.models import Category
-from geokey.categories.tests.model_factories import CategoryFactory
+from geokey.categories.tests.model_factories import (
+    CategoryFactory,
+    TextFieldFactory
+)
 
 from geokey_airquality import views
 from geokey_airquality.models import (
@@ -29,6 +32,8 @@ from geokey_airquality.models import (
 )
 from geokey_airquality.tests.model_factories import (
     AirQualityProjectF,
+    AirQualityCategoryF,
+    AirQualityFieldF,
     AirQualityLocationF,
     AirQualityMeasurementF
 )
@@ -288,6 +293,106 @@ class AQProjectViewTest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode('utf-8'), rendered)
+
+
+class AQRemoveViewTest(TestCase):
+
+    def setUp(self):
+
+        self.superuser = UserF.create(**{'is_superuser': True})
+        self.user = UserF.create(**{'is_superuser': False})
+        self.anonym = AnonymousUser()
+
+        self.template = 'base.html'
+        self.view = views.AQRemoveView.as_view()
+        self.request = HttpRequest()
+        self.request.method = 'GET'
+
+        setattr(self.request, 'session', 'session')
+        messages = FallbackStorage(self.request)
+        setattr(self.request, '_messages', messages)
+
+        self.project = ProjectF.create()
+        self.category = CategoryFactory.create()
+        self.field = TextFieldFactory.create()
+
+        self.aq_project_1 = AirQualityProjectF.create(project=self.project)
+        self.aq_category_1 = AirQualityCategoryF.create(
+            category=self.category,
+            project=self.aq_project_1
+        )
+        self.aq_field_1 = AirQualityFieldF.create(
+            field=self.field,
+            category=self.aq_category_1
+        )
+
+        self.aq_project_2 = AirQualityProjectF.create(project=self.project)
+        self.aq_category_2 = AirQualityCategoryF.create(
+            category=self.category,
+            project=self.aq_project_2
+        )
+        self.aq_field_1 = AirQualityFieldF.create(
+            field=self.field,
+            category=self.aq_category_2
+        )
+
+    def test_get_with_anonymous(self):
+
+        self.request.user = self.anonym
+        response = self.view(
+            self.request,
+            project_id=self.aq_project_1.id
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/admin/account/login/', response['location'])
+
+    def test_get_with_user(self):
+
+        self.request.user = self.user
+        response = self.view(
+            self.request,
+            project_id=self.aq_project_1.id
+        ).render()
+
+        rendered = render_to_string(
+            self.template,
+            {
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version(),
+                'user': self.request.user,
+                'error': 'Permission denied.',
+                'error_description': permission_denied
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+
+    def test_get_with_superuser(self):
+
+        self.request.user = self.superuser
+        response = self.view(
+            self.request,
+            project_id=self.aq_project_1.id
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/admin/airquality/', response['location'])
+        self.assertEqual(AirQualityProject.objects.count(), 1)
+        self.assertEqual(AirQualityCategory.objects.count(), 1)
+        self.assertEqual(AirQualityField.objects.count(), 1)
+
+    def test_get_when_no_project(self):
+
+        AirQualityProject.objects.get(pk=self.aq_project_1.id).delete()
+        self.request.user = self.superuser
+        response = self.view(
+            self.request,
+            project_id=self.aq_project_1.id
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/admin/airquality/', response['location'])
 
 
 # ############################################################################

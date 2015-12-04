@@ -1,13 +1,20 @@
 import factory
+import random
 
 from django.utils import timezone
 from django.contrib.gis.geos import Point
 
 from geokey.users.tests.model_factories import UserF
 from geokey.projects.tests.model_factories import ProjectF
+from geokey.categories.tests.model_factories import (
+    CategoryFactory,
+    TextFieldFactory
+)
 
 from geokey_airquality.models import (
     AirQualityProject,
+    AirQualityCategory,
+    AirQualityField,
     AirQualityLocation,
     AirQualityMeasurement
 )
@@ -21,6 +28,30 @@ class AirQualityProjectF(factory.django.DjangoModelFactory):
 
     class Meta:
         model = AirQualityProject
+
+
+class AirQualityCategoryF(factory.django.DjangoModelFactory):
+
+    type = factory.LazyAttribute(lambda s: random.choice(
+        dict(AirQualityCategory.TYPES).keys())
+    )
+    category = factory.SubFactory(CategoryFactory)
+    project = factory.SubFactory(AirQualityProjectF)
+
+    class Meta:
+        model = AirQualityCategory
+
+
+class AirQualityFieldF(factory.django.DjangoModelFactory):
+
+    type = factory.LazyAttribute(lambda s: random.choice(
+        dict(AirQualityField.TYPES).keys())
+    )
+    field = factory.SubFactory(TextFieldFactory)
+    category = factory.SubFactory(AirQualityCategoryF)
+
+    class Meta:
+        model = AirQualityField
 
 
 class AirQualityLocationF(factory.django.DjangoModelFactory):
