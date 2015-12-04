@@ -185,6 +185,48 @@ class AQAddViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode('utf-8'), rendered)
 
+    def test_get_when_project_marked_as_inactive(self):
+
+        self.project.status = 'inactive'
+        self.project.save()
+        self.request.user = self.superuser
+        response = self.view(self.request).render()
+
+        rendered = render_to_string(
+            self.template,
+            {
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version(),
+                'user': self.request.user,
+                'projects': [],
+                'category_types': self.category_types,
+                'field_types': self.field_types
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+
+    def test_get_when_project_marked_as_deleted(self):
+
+        self.project.status = 'deleted'
+        self.project.save()
+        self.request.user = self.superuser
+        response = self.view(self.request).render()
+
+        rendered = render_to_string(
+            self.template,
+            {
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version(),
+                'user': self.request.user,
+                'projects': [],
+                'category_types': self.category_types,
+                'field_types': self.field_types
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+
 
 class AQProjectViewTest(TestCase):
 

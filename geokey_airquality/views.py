@@ -89,7 +89,7 @@ class AQAddView(LoginRequiredMixin, SuperuserMixin, TemplateView):
             context
         """
 
-        projects = Project.objects.all()
+        projects = Project.objects.filter(status='active')
 
         category_types = collections.OrderedDict(
             sorted(dict(AirQualityCategory.TYPES).items())
