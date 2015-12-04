@@ -479,16 +479,42 @@ class AQCategoriesSingleAjaxView(APIView):
 
 class AQProjectsAPIView(APIView):
 
-    @handle_exceptions_for_ajax
+    """
+    API endpoint for all projects.
+    """
+
     def get(self, request):
+        """
+        Returns a list of all projects, added to Air Quality. It includes only
+        active projects, to which current user is allowed to contribute.
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the request.
+
+        Returns
+        -------
+        rest_framework.response.Response
+            Contains the serialised projects.
+        """
+
+        user = request.user
+
+        if user.is_anonymous():
+            return Response(
+                {'error': 'You have no rights to retrieve all projects.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
         aq_projects = []
 
-        for aq_project in AirQualityProject.objects.all():
-            if aq_project.project.can_contribute(request.user):
+        for aq_project in AirQualityProject.objects.filter(status='active'):
+            if aq_project.project.can_contribute(user):
                 aq_projects.append(aq_project.project)
 
         serializer = ProjectSerializer(
-            aq_projects, many=True, context={'user': request.user},
+            aq_projects, many=True, context={'user': user},
             fields=('id', 'name')
         )
 

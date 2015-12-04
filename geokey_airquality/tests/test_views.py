@@ -48,7 +48,6 @@ permission_denied = 'Managing Air Quality is for superusers only.'
 #
 # ############################################################################
 
-
 class AQIndexViewTest(TestCase):
 
     def setUp(self):
@@ -572,6 +571,57 @@ class AQCategoriesSingleAjaxViewTest(TestCase):
 # Public API Views
 #
 # ############################################################################
+
+class AQProjectsAPIViewTest(TestCase):
+
+    def setUp(self):
+
+        self.contributor = UserF.create()
+        self.user = UserF.create()
+        self.anonym = AnonymousUser()
+
+        self.url = '/api/airquality/projects/'
+        self.factory = APIRequestFactory()
+        self.request_get = self.factory.get(self.url)
+        self.view = views.AQProjectsAPIView.as_view()
+
+        self.project_1 = ProjectF.create(add_contributors=[self.contributor])
+        self.project_2 = ProjectF.create(add_contributors=[self.contributor])
+        self.project_3 = ProjectF.create(add_contributors=[self.contributor])
+        self.aq_project_1 = AirQualityProjectF.create(
+            project=self.project_1
+        )
+        self.aq_project_2 = AirQualityProjectF.create(
+            status='inactive',
+            project=self.project_2
+        )
+
+    def test_get_with_anonymous(self):
+
+        force_authenticate(self.request_get, user=self.anonym)
+        response = self.view(self.request_get).render()
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_with_user(self):
+
+        force_authenticate(self.request_get, user=self.user)
+        response = self.view(self.request_get).render()
+        projects = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(projects), 0)
+
+    def test_get_with_contributor(self):
+
+        force_authenticate(self.request_get, user=self.contributor)
+        response = self.view(self.request_get).render()
+        projects = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(projects), 1)
+        self.assertEqual(projects[0]['id'], self.project_1.id)
+
 
 class AQLocationsAPIViewTest(TestCase):
 
