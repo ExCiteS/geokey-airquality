@@ -122,7 +122,7 @@ class AQAddView(LoginRequiredMixin, SuperuserMixin, TemplateView):
         -------
         django.http.HttpResponseRedirect
             When project is added, the success message is rendered, when
-            redirected to the project page.
+            redirected to the index page.
         django.http.HttpResponse
             Rendered template with an error message.
         """
@@ -212,8 +212,8 @@ class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
     def get_context_data(self, project_id, *args, **kwargs):
         """
         Returns the context to render the view. Overwrites the method by adding
-        all Air Quality project, available category and field types to the
-        context.
+        all Geokey projects, current Air Quality project, available category
+        and field types to the context.
 
         Parameters
         ----------
