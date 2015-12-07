@@ -2,4 +2,6 @@ Dear {{ receiver }},
 
 The project {{ project_name }} was just {{ action }}. This action resulted in project being removed from a list of Air Quality projects. That means, it is no more possible to submit new finished measurements to this project.
 
+---
+
 This is automated message, please do not respond to this email.
