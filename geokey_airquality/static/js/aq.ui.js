@@ -159,7 +159,7 @@ $(document).ready(function() {
 
             $.each(fields, function(key, value) {
                 key = key.replace('category_', '').replace('field_', '').split('__');
-                categories.find('option[value="' + key[0] + '"]:selected').closest('.panel').find('select[name="' + key[1] + '"]').val(value).trigger('change');
+                $('select#' + key[0]).closest('.panel').find('select[name="' + key[1] + '"]').val(value).trigger('change');
             });
         }, false);
     }

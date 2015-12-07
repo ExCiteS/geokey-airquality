@@ -14,7 +14,11 @@ data-project="{{ project.project.id }}"
     {% for field in category.fields.all %}
         {% for f_type_key, f_type_value in field_types.items %}
             {% if field.type == f_type_value %}
-                data-category_{{ category.category.id }}_field__{{ f_type_key }}={{ field.field.id }}
+                {% for c_type_key, c_type_value in category_types.items %}
+                    {% if category.type == c_type_value %}
+                        data-category_{{ c_type_key }}_field__{{ f_type_key }}={{ field.field.id }}
+                    {% endif %}
+                {% endfor %}
             {% endif %}
         {% endfor %}
     {% endfor %}
