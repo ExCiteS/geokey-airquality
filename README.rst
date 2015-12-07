@@ -76,7 +76,7 @@ Copy static files:
 
     python manage.py collectstatic
 
-Develop and Test
+Develop And Test
 ----------------
 
 Clone the repository:
@@ -137,7 +137,7 @@ API
 
 Sign the request with the OAuth access token to authenticate a user.
 
-Get **added projects**:
+**Get dded projects:**
 
 .. code-block:: console
 
@@ -147,14 +147,14 @@ Response:
 
 .. code-block:: console
 
-[
-    {
-        "id": 12,
-        "name": "Air Quality in London"
-    }
-]
+    [
+        {
+            "id": 12,
+            "name": "Air Quality in London"
+        }
+    ]
 
-Get **your added locations**:
+**Get personal added locations:**
 
 .. code-block:: console
 
@@ -164,20 +164,69 @@ Response:
 
 .. code-block:: console
 
-[
+    [
+        {
+            "id": 115,
+            "type": "Feature",
+            "geometry": {
+                // GeoJSON object
+            },
+            "name": "South Bank",
+            "created": "2015-09-15T09:40:01.747Z",
+            "properties": {
+                "additional_details": "Busy location."
+            },
+            "measurements": [
+                // a list of measurements
+            ]
+        }
+    ]
+
+**Delete your location:**
+
+.. code-block:: console
+
+    DELETE /api/airquality/locations/:location_id/
+
+**Update your measurement:**
+
+.. code-block:: console
+
+    PATCH /api/airquality/locations/:location_id/measurement/:measurement_id/
+
+Request body:
+
+.. code-block:: console
+
     {
-        "id": 115,
-        "type": "Feature",
-        "geometry": {
-            // GeoJSON object
-        },
-        "name": "South Bank",
-        "created": "2015-09-15T09:40:01.747Z",
+        "called": "2015-12-23T09:22:01.147Z",
+        "finished": "2015-12-23T09:22:01.147Z",
+        "project": "45",
         "properties": {
-            "additional_details": "Busy location."
-        },
-        "measurements": [
-            // a list of measurements
-        ]
+            "results": "64.78"
+        }
     }
-]
+
+If "finished" is being described, "called" should be also present to calculate actual time difference. Otherwise current time will be used.
+
+If measurement has "started", "finished" and "results" collected, it is still saved until "project" is being attached to measurement. When attached, a new contribution gets created, also current measurement is removed completely.
+
+Response (when no project):
+
+.. code-block:: console
+
+    {
+        "id": 154,
+        "barcode": "451001",
+        "started": "2015-11-29T12:01:04.178Z",
+        "finished": "2015-12-23T09:22:01.147Z",
+        "properties": {
+            "results": 64.78
+        }
+    }
+
+**Delete your measurement:**
+
+.. code-block:: console
+
+    DELETE /api/airquality/locations/:location_id/measurement/:measurement_id/
