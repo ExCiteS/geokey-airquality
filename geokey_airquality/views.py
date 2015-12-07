@@ -307,7 +307,7 @@ class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
         if field_types is not None:
             for key, value in field_types.items():
                 try:
-                    print data.getlist(key)
+                    data.getlist(key)
                 except:
                     missing = True
 
@@ -354,9 +354,6 @@ class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
                                 list = data.getlist(key)
                                 field = list[index]
 
-                                if key == 'results':
-                                    print field
-
                                 field = Field.objects.get(
                                     pk=field,
                                     status='active'
@@ -371,7 +368,6 @@ class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
                                     if aq_field.field != field:
                                         aq_field.field = field
                                         aq_field.save()
-                                        print 'saved %s %s' % (index, field)
                                 except AirQualityField.DoesNotExist:
                                     AirQualityField.objects.create(
                                         type=field_types.get(key),
