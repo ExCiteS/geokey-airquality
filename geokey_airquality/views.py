@@ -3,6 +3,7 @@ import operator
 
 from django.core.exceptions import PermissionDenied
 from django.views.generic import TemplateView
+from django.template.defaultfilters import date as filter_date
 from django.shortcuts import redirect
 from django.contrib import messages
 
@@ -16,6 +17,7 @@ from geokey.projects.models import Project
 from geokey.projects.serializers import ProjectSerializer
 from geokey.categories.models import Category, Field
 from geokey.categories.serializer import CategorySerializer
+from geokey.contributions.serializers import ContributionSerializer
 from geokey.extensions.views import SuperuserMixin
 
 from geokey_airquality.models import (
@@ -665,13 +667,100 @@ class MeasurementAPIMixin(object):
 
             if finished is not None and results is not None:
                 try:
-                    project = Project.objects.get(pk=project)
+                    project = Project.objects.get(pk=project, status='active')
+                    aq_project = AirQualityProject.objects.get(
+                        status='active',
+                        project=project
+                    )
+
+                    category_types = dict(AirQualityCategory.TYPES)
+                    field_types = dict(AirQualityField.TYPES)
+                    results = float(results)
+
+                    if results < 40:
+                        category = category_types['1']
+                    elif results >= 40 and results < 60:
+                        category = category_types['2']
+                    elif results >= 60 and results < 80:
+                        category = category_types['3']
+                    elif results >= 80 and results < 100:
+                        category = category_types['4']
+                    else:
+                        category = category_types['5']
+
+                    aq_category = AirQualityCategory.objects.get(
+                        type=category,
+                        project=aq_project
+                    )
+
+                    properties = {}
+
+                    for key, value in field_types.iteritems():
+                        aq_field = AirQualityField.objects.get(
+                            type=value,
+                            category=aq_category
+                        )
+                        instance_properties = instance.location.properties
+
+                        if key == 'results':
+                            value = results
+                        elif key == 'date_out':
+                            value = filter_date(instance.started, 'd/m/Y')
+                        elif key == 'time_out':
+                            value = filter_date(instance.started, 'H:i')
+                        elif key == 'date_collected':
+                            value = filter_date(instance.finished, 'd/m/Y')
+                        elif key == 'time_collected':
+                            value = filter_date(instance.finished, 'H:i')
+                        elif key == 'exposure_min':
+                            value = instance.finished - instance.started
+                            value = int(value.total_seconds() / 60)
+                        elif key == 'distance_from_road':
+                            value = instance_properties.get(
+                                'distance_from_road'
+                            )
+                        elif key == 'height':
+                            value = instance_properties.get(
+                                'height'
+                            )
+                        elif key == 'site_characteristics':
+                            value = instance_properties.get(
+                                'site_characteristics'
+                            )
+                        elif key == 'additional_details':
+                            value = instance_properties.get(
+                                'additional_details'
+                            )
+                        else:
+                            value = None
+
+                        if value is not None:
+                            properties[aq_field.field.key] = str(value)
                 except:
                     return False
 
                 if project.can_contribute(user):
-                    instance.delete()
-                    return True
+                    data = {
+                        'type': 'Feature',
+                        'meta': {
+                            'status': 'active',
+                            'category': aq_category.category.id
+                        },
+                        'location': {
+                            'geometry': instance.location.geometry.geojson
+                        },
+                        'properties': properties
+                    }
+
+                    serializer = ContributionSerializer(
+                        data=data,
+                        context={'user': user, 'project': project}
+                    )
+
+                    if serializer.is_valid(raise_exception=True):
+                        serializer.save()
+                        instance.delete()
+                        return True
 
         return False
 

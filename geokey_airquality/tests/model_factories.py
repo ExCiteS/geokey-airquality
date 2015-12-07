@@ -57,7 +57,7 @@ class AirQualityFieldF(factory.django.DjangoModelFactory):
 class AirQualityLocationF(factory.django.DjangoModelFactory):
 
     name = factory.Sequence(lambda n: 'Location %d' % n)
-    geometry = Point(-0.508, 51.682)
+    geometry = Point(-1.5126800537109375, 51.062975588514966)
     creator = factory.SubFactory(UserF)
     created = timezone.now()
     properties = {}

@@ -2,6 +2,8 @@ import json
 import collections
 import operator
 
+from datetime import timedelta
+
 from django.http import HttpRequest
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -21,6 +23,7 @@ from geokey.categories.tests.model_factories import (
     CategoryFactory,
     TextFieldFactory
 )
+from geokey.contributions.models import Location, Observation
 
 from geokey_airquality import views
 from geokey_airquality.models import (
@@ -812,7 +815,7 @@ class AQLocationsAPIViewTest(TestCase):
             },
             'name': 'Test Location',
             'properties': {
-                'distance': 2
+                'distance_from_road': 2
             }
         }
 
@@ -988,13 +991,21 @@ class AQMeasurementsAPIViewTest(TestCase):
         self.user = UserF.create()
         self.anonym = AnonymousUser()
 
-        self.location = AirQualityLocationF.create(creator=self.creator)
+        self.location = AirQualityLocationF.create(
+            creator=self.creator,
+            properties={
+                'distance_from_road': '10m',
+                'height': '2m'
+            }
+        )
 
         self.url = '/api/airquality/locations/%s/measurements/' % (
             self.location.id
         )
         self.data = {
-            'barcode': 123456
+            'barcode': 123456,
+            'started': (timezone.now() - timedelta(days=28)).isoformat(),
+            'called': timezone.now().isoformat()
         }
 
         self.factory = APIRequestFactory()
@@ -1004,6 +1015,75 @@ class AQMeasurementsAPIViewTest(TestCase):
             content_type='application/json'
         )
         self.view = views.AQMeasurementsAPIView.as_view()
+
+        self.project = ProjectF.create(add_contributors=[self.creator])
+        self.aq_project = AirQualityProjectF.create(project=self.project)
+        self.category = CategoryFactory.create(project=self.project)
+        self.aq_category = AirQualityCategoryF.create(
+            type='40-60',
+            category=self.category,
+            project=self.aq_project
+        )
+        self.field_1 = TextFieldFactory.create(category=self.category)
+        self.field_2 = TextFieldFactory.create(category=self.category)
+        self.field_3 = TextFieldFactory.create(category=self.category)
+        self.field_4 = TextFieldFactory.create(category=self.category)
+        self.field_5 = TextFieldFactory.create(category=self.category)
+        self.field_6 = TextFieldFactory.create(category=self.category)
+        self.field_7 = TextFieldFactory.create(category=self.category)
+        self.field_8 = TextFieldFactory.create(category=self.category)
+        self.field_9 = TextFieldFactory.create(category=self.category)
+        self.field_10 = TextFieldFactory.create(category=self.category)
+        self.aq_field_1 = AirQualityFieldF.create(
+            type='01. Results',
+            field=self.field_1,
+            category=self.aq_category
+        )
+        self.aq_field_2 = AirQualityFieldF.create(
+            type='02. Date out',
+            field=self.field_2,
+            category=self.aq_category
+        )
+        self.aq_field_3 = AirQualityFieldF.create(
+            type='03. Time out',
+            field=self.field_3,
+            category=self.aq_category
+        )
+        self.aq_field_4 = AirQualityFieldF.create(
+            type='04. Date collected',
+            field=self.field_4,
+            category=self.aq_category
+        )
+        self.aq_field_5 = AirQualityFieldF.create(
+            type='05. Time collected',
+            field=self.field_5,
+            category=self.aq_category
+        )
+        self.aq_field_6 = AirQualityFieldF.create(
+            type='06. Exposure time (min)',
+            field=self.field_6,
+            category=self.aq_category
+        )
+        self.aq_field_7 = AirQualityFieldF.create(
+            type='07. Distance from the road',
+            field=self.field_7,
+            category=self.aq_category
+        )
+        self.aq_field_8 = AirQualityFieldF.create(
+            type='08. Height from ground',
+            field=self.field_8,
+            category=self.aq_category
+        )
+        self.aq_field_9 = AirQualityFieldF.create(
+            type='09. Site characteristics',
+            field=self.field_9,
+            category=self.aq_category
+        )
+        self.aq_field_10 = AirQualityFieldF.create(
+            type='10. Additional details',
+            field=self.field_10,
+            category=self.aq_category
+        )
 
     def test_post_with_anonymous(self):
 
@@ -1042,7 +1122,7 @@ class AQMeasurementsAPIViewTest(TestCase):
 
         self.data['finished'] = timezone.now().isoformat()
         self.data['project'] = 158
-        self.data['properties'] = {'results': '12.5'}
+        self.data['properties'] = {'results': '45.15'}
         self.request_post = self.factory.post(
             self.url,
             json.dumps(self.data),
@@ -1056,13 +1136,15 @@ class AQMeasurementsAPIViewTest(TestCase):
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(AirQualityMeasurement.objects.count(), 1)
+        self.assertEqual(Location.objects.count(), 0)
+        self.assertEqual(Observation.objects.count(), 0)
 
     def test_post_when_submitting(self):
 
-        project = ProjectF.create(add_contributors=[self.creator])
         self.data['finished'] = timezone.now().isoformat()
-        self.data['project'] = project.id
-        self.data['properties'] = {'results': '12.5'}
+        self.data['project'] = self.project.id
+        self.data['properties'] = {'results': '48.05'}
+
         self.request_post = self.factory.post(
             self.url,
             json.dumps(self.data),
@@ -1076,6 +1158,8 @@ class AQMeasurementsAPIViewTest(TestCase):
 
         self.assertEqual(response.status_code, 204)
         self.assertEqual(AirQualityMeasurement.objects.count(), 0)
+        self.assertEqual(Location.objects.count(), 1)
+        self.assertEqual(Observation.objects.count(), 1)
 
     def test_post_when_no_location(self):
 
@@ -1097,7 +1181,12 @@ class AQMeasurementsSingleAPIViewTest(TestCase):
         self.user = UserF.create()
         self.anonym = AnonymousUser()
 
-        self.location_1 = AirQualityLocationF.create(creator=self.creator)
+        self.location_1 = AirQualityLocationF.create(
+            creator=self.creator,
+            properties={
+                'additional_details': 'Heavy traffic.'
+            }
+        )
         self.location_2 = AirQualityLocationF.create(creator=self.user)
         self.measurement_1 = AirQualityMeasurementF.create(
             location=self.location_1,
@@ -1114,7 +1203,9 @@ class AQMeasurementsSingleAPIViewTest(TestCase):
         )
         self.data = {
             'barcode': self.measurement_1.barcode,
-            'finished': timezone.now().isoformat()
+            'started': (timezone.now() - timedelta(days=28)).isoformat(),
+            'finished': timezone.now().isoformat(),
+            'called': timezone.now().isoformat()
         }
 
         self.factory = APIRequestFactory()
@@ -1128,6 +1219,75 @@ class AQMeasurementsSingleAPIViewTest(TestCase):
             content_type='application/json'
         )
         self.view = views.AQMeasurementsSingleAPIView.as_view()
+
+        self.project = ProjectF.create(add_contributors=[self.creator])
+        self.aq_project = AirQualityProjectF.create(project=self.project)
+        self.category = CategoryFactory.create(project=self.project)
+        self.aq_category = AirQualityCategoryF.create(
+            type='60-80',
+            category=self.category,
+            project=self.aq_project
+        )
+        self.field_1 = TextFieldFactory.create(category=self.category)
+        self.field_2 = TextFieldFactory.create(category=self.category)
+        self.field_3 = TextFieldFactory.create(category=self.category)
+        self.field_4 = TextFieldFactory.create(category=self.category)
+        self.field_5 = TextFieldFactory.create(category=self.category)
+        self.field_6 = TextFieldFactory.create(category=self.category)
+        self.field_7 = TextFieldFactory.create(category=self.category)
+        self.field_8 = TextFieldFactory.create(category=self.category)
+        self.field_9 = TextFieldFactory.create(category=self.category)
+        self.field_10 = TextFieldFactory.create(category=self.category)
+        self.aq_field_1 = AirQualityFieldF.create(
+            type='01. Results',
+            field=self.field_1,
+            category=self.aq_category
+        )
+        self.aq_field_2 = AirQualityFieldF.create(
+            type='02. Date out',
+            field=self.field_2,
+            category=self.aq_category
+        )
+        self.aq_field_3 = AirQualityFieldF.create(
+            type='03. Time out',
+            field=self.field_3,
+            category=self.aq_category
+        )
+        self.aq_field_4 = AirQualityFieldF.create(
+            type='04. Date collected',
+            field=self.field_4,
+            category=self.aq_category
+        )
+        self.aq_field_5 = AirQualityFieldF.create(
+            type='05. Time collected',
+            field=self.field_5,
+            category=self.aq_category
+        )
+        self.aq_field_6 = AirQualityFieldF.create(
+            type='06. Exposure time (min)',
+            field=self.field_6,
+            category=self.aq_category
+        )
+        self.aq_field_7 = AirQualityFieldF.create(
+            type='07. Distance from the road',
+            field=self.field_7,
+            category=self.aq_category
+        )
+        self.aq_field_8 = AirQualityFieldF.create(
+            type='08. Height from ground',
+            field=self.field_8,
+            category=self.aq_category
+        )
+        self.aq_field_9 = AirQualityFieldF.create(
+            type='09. Site characteristics',
+            field=self.field_9,
+            category=self.aq_category
+        )
+        self.aq_field_10 = AirQualityFieldF.create(
+            type='10. Additional details',
+            field=self.field_10,
+            category=self.aq_category
+        )
 
     def test_patch_with_anonymous(self):
 
@@ -1165,7 +1325,7 @@ class AQMeasurementsSingleAPIViewTest(TestCase):
     def test_patch_when_submitting_and_no_project(self):
 
         self.data['project'] = 183
-        self.data['properties'] = {'results': '12.5'}
+        self.data['properties'] = {'results': '70.51'}
         self.request_patch = self.factory.patch(
             self.url,
             json.dumps(self.data),
@@ -1184,12 +1344,13 @@ class AQMeasurementsSingleAPIViewTest(TestCase):
                 pk=self.measurement_1.id).exists(),
             True
         )
+        self.assertEqual(Location.objects.count(), 0)
+        self.assertEqual(Observation.objects.count(), 0)
 
     def test_patch_when_submitting(self):
 
-        project = ProjectF.create(add_contributors=[self.creator])
-        self.data['project'] = project.id
-        self.data['properties'] = {'results': '12.5'}
+        self.data['project'] = self.project.id
+        self.data['properties'] = {'results': '72.78'}
         self.request_patch = self.factory.patch(
             self.url,
             json.dumps(self.data),
@@ -1208,6 +1369,8 @@ class AQMeasurementsSingleAPIViewTest(TestCase):
                 pk=self.measurement_1.id).exists(),
             False
         )
+        self.assertEqual(Location.objects.count(), 1)
+        self.assertEqual(Observation.objects.count(), 1)
 
     def test_patch_when_no_location(self):
 
