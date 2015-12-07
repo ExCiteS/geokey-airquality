@@ -702,6 +702,8 @@ class MeasurementAPIMixin(object):
                         )
                         instance_properties = instance.location.properties
 
+                        value = None
+
                         if key == 'results':
                             value = results
                         elif key == 'date_out':
@@ -731,8 +733,6 @@ class MeasurementAPIMixin(object):
                             value = instance_properties.get(
                                 'additional_details'
                             )
-                        else:
-                            value = None
 
                         if value is not None:
                             properties[aq_field.field.key] = str(value)
