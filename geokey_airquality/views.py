@@ -134,19 +134,23 @@ class AQAddView(LoginRequiredMixin, SuperuserMixin, TemplateView):
 
         missing = False
         project = data.get('project')
-        categories = {}
-
-        for key, value in context.get('category_types').items():
-            categories[key] = data.get(key)
-
-            if not key:
-                missing = True
-
+        category_types = context.get('category_types')
         field_types = context.get('field_types')
 
-        for key, value in field_types.items():
-            for entry in data.getlist(key):
-                if not entry:
+        categories = {}
+
+        if category_types is not None:
+            for key, value in category_types.items():
+                try:
+                    categories[key] = data.get(key)
+                except:
+                    missing = True
+
+        if field_types is not None:
+            for key, value in field_types.items():
+                try:
+                    data.getlist(key)
+                except:
                     missing = True
 
         if project and missing is False:
@@ -165,7 +169,7 @@ class AQAddView(LoginRequiredMixin, SuperuserMixin, TemplateView):
                             status='active'
                         )
                         aq_category = AirQualityCategory.objects.create(
-                            type=context.get('category_types').get(key),
+                            type=category_types.get(key),
                             category=category,
                             project=aq_project
                         )
@@ -287,27 +291,31 @@ class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
 
         missing = False
         project = data.get('project')
-        categories = {}
-
-        for key, value in context.get('category_types').items():
-            categories[key] = data.get(key)
-
-            if not key:
-                missing = True
-
+        aq_project = context.get('project')
+        category_types = context.get('category_types')
         field_types = context.get('field_types')
 
-        for key, value in field_types.items():
-            for entry in data.getlist(key):
-                if not entry:
+        categories = {}
+
+        if category_types is not None:
+            for key, value in category_types.items():
+                try:
+                    categories[key] = data.get(key)
+                except:
                     missing = True
 
-        if project and missing is False:
+        if field_types is not None:
+            for key, value in field_types.items():
+                try:
+                    data.getlist(key)
+                except:
+                    missing = True
+
+        if aq_project and missing is False:
             try:
                 error = False
 
                 project = Project.objects.get(pk=project, status='active')
-                aq_project = AirQualityProject.objects.get(pk=project_id)
 
                 # Changing project should not be allowed, but just in case...
                 if aq_project.project != project:
@@ -323,7 +331,7 @@ class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
                             status='active'
                         )
                         aq_category = AirQualityCategory.objects.get(
-                            type=context.get('category_types').get(key),
+                            type=category_types.get(key),
                             project=aq_project
                         )
 
