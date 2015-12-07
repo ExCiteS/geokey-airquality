@@ -307,11 +307,11 @@ class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
         if field_types is not None:
             for key, value in field_types.items():
                 try:
-                    data.getlist(key)
+                    print data.getlist(key)
                 except:
                     missing = True
 
-        if aq_project and missing is False:
+        if aq_project is not None and missing is False:
             try:
                 error = False
 
@@ -330,40 +330,61 @@ class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
                             pk=value,
                             status='active'
                         )
-                        aq_category = AirQualityCategory.objects.get(
-                            type=category_types.get(key),
-                            project=aq_project
-                        )
+
+                        try:
+                            aq_category = AirQualityCategory.objects.get(
+                                type=category_types.get(key),
+                                project=aq_project
+                            )
+
+                            if aq_category.category != category:
+                                aq_category.category = category
+                                aq_category.save()
+                        except AirQualityCategory.DoesNotExist:
+                            aq_category = AirQualityCategory.objects.create(
+                                type=category_types.get(key),
+                                category=category,
+                                project=aq_project
+                            )
 
                         index = int(key) - 1
-
-                        if aq_category.category != category:
-                            aq_category.category = category
-                            aq_category.save()
 
                         try:
                             for key, value in field_types.items():
                                 list = data.getlist(key)
                                 field = list[index]
 
+                                if key == 'results':
+                                    print field
+
                                 field = Field.objects.get(
                                     pk=field,
                                     status='active'
                                 )
-                                aq_field = AirQualityField.objects.get(
-                                    type=field_types.get(key),
-                                    category=aq_category
-                                )
 
-                                if aq_field.field != field:
-                                    aq_field.field = field
-                                    aq_field.save()
+                                try:
+                                    aq_field = AirQualityField.objects.get(
+                                        type=field_types.get(key),
+                                        category=aq_category
+                                    )
+
+                                    if aq_field.field != field:
+                                        aq_field.field = field
+                                        aq_field.save()
+                                        print 'saved %s %s' % (index, field)
+                                except AirQualityField.DoesNotExist:
+                                    AirQualityField.objects.create(
+                                        type=field_types.get(key),
+                                        field=field,
+                                        category=aq_category
+                                    )
                         except Field.DoesNotExist:
-                            messages.error(self.request, 'Field not found.')
+                            missing = True
+                            aq_category.delete()
                             aq_project.delete()
                             error = True
                 except Category.DoesNotExist:
-                    messages.error(self.request, 'Category not found.')
+                    missing = True
                     aq_project.delete()
                     error = True
 
@@ -372,10 +393,9 @@ class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
                         self.request,
                         'The project has been updated.'
                     )
+                    return redirect('geokey_airquality:index')
             except Project.DoesNotExist:
                 messages.error(self.request, 'Project not found.')
-
-            return redirect('geokey_airquality:index')
 
         messages.error(self.request, 'An error occurred.')
         return self.render_to_response(context)
