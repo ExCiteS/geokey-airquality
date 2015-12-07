@@ -29,7 +29,7 @@ def email_user(template, subject, receiver, action,
     }))
 
     message = mail.EmailMessage(
-        subject,
+        'Air Quality: %s' % subject,
         message,
         settings.DEFAULT_FROM_EMAIL,
         [receiver.email]
