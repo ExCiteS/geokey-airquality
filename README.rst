@@ -235,7 +235,7 @@ Response:
 
 .. code-block:: console
 
-    POST /api/airquality/locations/:location_id/measurement/
+    POST /api/airquality/locations/:location_id/measurements/
 
 Request body:
 
@@ -265,7 +265,7 @@ Response:
 
 .. code-block:: console
 
-    PATCH /api/airquality/locations/:location_id/measurement/:measurement_id/
+    PATCH /api/airquality/locations/:location_id/measurements/:measurement_id/
 
 Request body:
 
@@ -302,4 +302,4 @@ Response (when no project):
 
 .. code-block:: console
 
-    DELETE /api/airquality/locations/:location_id/measurement/:measurement_id/
+    DELETE /api/airquality/locations/:location_id/measurements/:measurement_id/
