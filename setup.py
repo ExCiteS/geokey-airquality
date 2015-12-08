@@ -15,7 +15,7 @@ setup(
     url=repository,
     download_url=join(repository, 'tarball', version),
     author='Julius Osokinas',
-    author_email='j.osokinas@mappinforchange.org.uk',
+    author_email='j.osokinas@mappingforchange.org.uk',
     license='MIT',
     packages=find_packages(exclude=['*.tests', '*.tests.*', 'tests.*']),
     include_package_data=True,
