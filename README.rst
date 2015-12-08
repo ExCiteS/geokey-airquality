@@ -184,8 +184,6 @@ Response:
 
 **Add new location**
 
-**Add new measurement to your location**
-
 .. code-block:: console
 
     POST /api/airquality/locations/
