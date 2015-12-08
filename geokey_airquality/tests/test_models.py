@@ -61,6 +61,17 @@ class ProjectSaveTest(TestCase):
         )
         self.assertEquals(len(mail.outbox), 1)
 
+    def test_post_save_when_no_aq_project(self):
+
+        project = ProjectF.create(status='active')
+
+        project.status = 'deleted'
+        project.save
+
+        post_save_project(Project, instance=project)
+
+        self.assertEquals(len(mail.outbox), 0)
+
 
 class ProjectDeleteTest(TestCase):
 
@@ -114,6 +125,25 @@ class CategorySaveTest(TestCase):
             False
         )
         self.assertEquals(len(mail.outbox), 1)
+
+    def test_post_save_when_no_aq_category(self):
+
+        project = ProjectF.create(status='active')
+        category = CategoryFactory.create(project=project)
+
+        aq_project = AirQualityProjectF.create(
+            status='active',
+            project=project
+        )
+
+        category.status = 'inactive'
+        category.save
+
+        post_save_category(Category, instance=category)
+
+        reference = AirQualityProject.objects.get(pk=aq_project.id)
+        self.assertEqual(reference.status, 'active')
+        self.assertEquals(len(mail.outbox), 0)
 
 
 class CategoryDeleteTest(TestCase):
@@ -192,6 +222,30 @@ class FieldSaveTest(TestCase):
             False
         )
         self.assertEquals(len(mail.outbox), 1)
+
+    def test_post_save_when_no_aq_field(self):
+
+        project = ProjectF.create(status='active')
+        category = CategoryFactory.create(project=project)
+        field = TextFieldFactory.create(category=category)
+
+        aq_project = AirQualityProjectF.create(
+            status='active',
+            project=project
+        )
+        aq_category = AirQualityCategoryF.create(
+            category=category,
+            project=aq_project
+        )
+
+        field.status = 'inactive'
+        field.save
+
+        post_save_field(TextField, instance=field)
+
+        reference = AirQualityProject.objects.get(pk=aq_project.id)
+        self.assertEqual(reference.status, 'active')
+        self.assertEquals(len(mail.outbox), 0)
 
 
 class FieldDeleteTest(TestCase):
