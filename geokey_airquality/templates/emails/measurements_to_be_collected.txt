@@ -1,0 +1,15 @@
+Dear {{ receiver }},
+
+{% spaceless %}{% if due_to_expire|length > 0 %}
+The following measurement{{ due_to_expire|length|pluralize }} should be collected in the next 3 days:
+{% for measurement in due_to_expire %}
+-- {{ measurement.barcode }} in the {{ measurement.location.name }}
+{% endfor %}{% endif %}{% if already_expired|length > 0 %}
+The following measurement{{ already_expired|length|pluralize }} should already be collected:
+{% for measurement in already_expired %}
+-- {{ measurement.barcode }} in the {{ measurement.location.name }}
+{% endfor %}{% endif %}{% endspaceless %}
+
+---
+
+This is automated message, please do not respond to this email.

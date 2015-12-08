@@ -69,7 +69,7 @@ class AirQualityLocationF(factory.django.DjangoModelFactory):
 class AirQualityMeasurementF(factory.django.DjangoModelFactory):
 
     location = factory.SubFactory(AirQualityLocationF)
-    barcode = 123456
+    barcode = '123456'
     creator = factory.SubFactory(UserF)
     started = timezone.now()
     finished = None
