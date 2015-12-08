@@ -69,8 +69,6 @@ class ProjectDeleteTest(TestCase):
         project = ProjectF.create(status='active')
         aq_project = AirQualityProjectF.create(project=project)
 
-        project.delete()
-
         pre_delete_project(Project, instance=project)
 
         self.assertEqual(
@@ -125,8 +123,6 @@ class CategoryDeleteTest(TestCase):
             category=category,
             project=aq_project
         )
-
-        category.delete()
 
         pre_delete_category(Category, instance=category)
 
@@ -194,8 +190,6 @@ class FieldDeleteTest(TestCase):
             field=field,
             category=aq_category
         )
-
-        field.delete()
 
         pre_delete_field(TextField, instance=field)
 
