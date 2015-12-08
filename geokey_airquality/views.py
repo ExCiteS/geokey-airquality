@@ -16,7 +16,7 @@ from geokey.core.decorators import handle_exceptions_for_ajax
 from geokey.projects.models import Project
 from geokey.projects.serializers import ProjectSerializer
 from geokey.categories.models import Category, Field
-from geokey.categories.serializer import CategorySerializer
+from geokey.categories.serializers import CategorySerializer
 from geokey.contributions.serializers import ContributionSerializer
 from geokey.extensions.views import SuperuserMixin
 

@@ -2,7 +2,7 @@ from django.core import mail
 from django.test import TestCase
 
 from geokey.projects.models import Project
-from geokey.projects.tests.model_factories import ProjectF
+from geokey.projects.tests.model_factories import ProjectFactory
 from geokey.categories.models import Category, TextField
 from geokey.categories.tests.model_factories import (
     CategoryFactory,
@@ -21,9 +21,9 @@ from geokey_airquality.models import (
     pre_delete_field
 )
 from geokey_airquality.tests.model_factories import (
-    AirQualityProjectF,
-    AirQualityCategoryF,
-    AirQualityFieldF
+    AirQualityProjectFactory,
+    AirQualityCategoryFactory,
+    AirQualityFieldFactory
 )
 
 
@@ -31,8 +31,8 @@ class ProjectSaveTest(TestCase):
 
     def test_post_save_when_project_made_inactive(self):
 
-        project = ProjectF.create(status='active')
-        aq_project = AirQualityProjectF.create(project=project)
+        project = ProjectFactory.create(status='active')
+        aq_project = AirQualityProjectFactory.create(project=project)
 
         project.status = 'inactive'
         project.save
@@ -47,8 +47,8 @@ class ProjectSaveTest(TestCase):
 
     def test_post_save_when_project_made_deleted(self):
 
-        project = ProjectF.create(status='active')
-        aq_project = AirQualityProjectF.create(project=project)
+        project = ProjectFactory.create(status='active')
+        aq_project = AirQualityProjectFactory.create(project=project)
 
         project.status = 'deleted'
         project.save
@@ -63,7 +63,7 @@ class ProjectSaveTest(TestCase):
 
     def test_post_save_when_no_aq_project(self):
 
-        project = ProjectF.create(status='active')
+        project = ProjectFactory.create(status='active')
 
         project.status = 'deleted'
         project.save
@@ -77,8 +77,8 @@ class ProjectDeleteTest(TestCase):
 
     def test_pre_delete_project(self):
 
-        project = ProjectF.create(status='active')
-        aq_project = AirQualityProjectF.create(project=project)
+        project = ProjectFactory.create(status='active')
+        aq_project = AirQualityProjectFactory.create(project=project)
 
         pre_delete_project(Project, instance=project)
 
@@ -90,7 +90,7 @@ class ProjectDeleteTest(TestCase):
 
     def test_pre_delete_project_when_no_aq_project(self):
 
-        project = ProjectF.create(status='active')
+        project = ProjectFactory.create(status='active')
 
         pre_delete_project(Project, instance=project)
 
@@ -101,14 +101,14 @@ class CategorySaveTest(TestCase):
 
     def test_post_save_when_category_made_inactive(self):
 
-        project = ProjectF.create(status='active')
+        project = ProjectFactory.create(status='active')
         category = CategoryFactory.create(project=project)
 
-        aq_project = AirQualityProjectF.create(
+        aq_project = AirQualityProjectFactory.create(
             status='active',
             project=project
         )
-        aq_category = AirQualityCategoryF.create(
+        aq_category = AirQualityCategoryFactory.create(
             category=category,
             project=aq_project
         )
@@ -128,10 +128,10 @@ class CategorySaveTest(TestCase):
 
     def test_post_save_when_no_aq_category(self):
 
-        project = ProjectF.create(status='active')
+        project = ProjectFactory.create(status='active')
         category = CategoryFactory.create(project=project)
 
-        aq_project = AirQualityProjectF.create(
+        aq_project = AirQualityProjectFactory.create(
             status='active',
             project=project
         )
@@ -150,14 +150,14 @@ class CategoryDeleteTest(TestCase):
 
     def test_pre_delete_category(self):
 
-        project = ProjectF.create(status='active')
+        project = ProjectFactory.create(status='active')
         category = CategoryFactory.create(project=project)
 
-        aq_project = AirQualityProjectF.create(
+        aq_project = AirQualityProjectFactory.create(
             status='active',
             project=project
         )
-        aq_category = AirQualityCategoryF.create(
+        aq_category = AirQualityCategoryFactory.create(
             category=category,
             project=aq_project
         )
@@ -174,10 +174,10 @@ class CategoryDeleteTest(TestCase):
 
     def test_pre_delete_category_when_no_aq_categort(self):
 
-        project = ProjectF.create(status='active')
+        project = ProjectFactory.create(status='active')
         category = CategoryFactory.create(project=project)
 
-        aq_project = AirQualityProjectF.create(
+        aq_project = AirQualityProjectFactory.create(
             status='active',
             project=project
         )
@@ -193,19 +193,19 @@ class FieldSaveTest(TestCase):
 
     def test_post_save_when_field_made_inactive(self):
 
-        project = ProjectF.create(status='active')
+        project = ProjectFactory.create(status='active')
         category = CategoryFactory.create(project=project)
         field = TextFieldFactory.create(category=category)
 
-        aq_project = AirQualityProjectF.create(
+        aq_project = AirQualityProjectFactory.create(
             status='active',
             project=project
         )
-        aq_category = AirQualityCategoryF.create(
+        aq_category = AirQualityCategoryFactory.create(
             category=category,
             project=aq_project
         )
-        aq_field = AirQualityFieldF.create(
+        aq_field = AirQualityFieldFactory.create(
             field=field,
             category=aq_category
         )
@@ -225,15 +225,15 @@ class FieldSaveTest(TestCase):
 
     def test_post_save_when_no_aq_field(self):
 
-        project = ProjectF.create(status='active')
+        project = ProjectFactory.create(status='active')
         category = CategoryFactory.create(project=project)
         field = TextFieldFactory.create(category=category)
 
-        aq_project = AirQualityProjectF.create(
+        aq_project = AirQualityProjectFactory.create(
             status='active',
             project=project
         )
-        aq_category = AirQualityCategoryF.create(
+        AirQualityCategoryFactory.create(
             category=category,
             project=aq_project
         )
@@ -252,19 +252,19 @@ class FieldDeleteTest(TestCase):
 
     def test_pre_delete_field(self):
 
-        project = ProjectF.create(status='active')
+        project = ProjectFactory.create(status='active')
         category = CategoryFactory.create(project=project)
         field = TextFieldFactory.create(category=category)
 
-        aq_project = AirQualityProjectF.create(
+        aq_project = AirQualityProjectFactory.create(
             status='active',
             project=project
         )
-        aq_category = AirQualityCategoryF.create(
+        aq_category = AirQualityCategoryFactory.create(
             category=category,
             project=aq_project
         )
-        aq_field = AirQualityFieldF.create(
+        aq_field = AirQualityFieldFactory.create(
             field=field,
             category=aq_category
         )
@@ -281,15 +281,15 @@ class FieldDeleteTest(TestCase):
 
     def test_pre_delete_field_when_no_aq_field(self):
 
-        project = ProjectF.create(status='active')
+        project = ProjectFactory.create(status='active')
         category = CategoryFactory.create(project=project)
         field = TextFieldFactory.create(category=category)
 
-        aq_project = AirQualityProjectF.create(
+        aq_project = AirQualityProjectFactory.create(
             status='active',
             project=project
         )
-        AirQualityCategoryF.create(
+        AirQualityCategoryFactory.create(
             category=category,
             project=aq_project
         )

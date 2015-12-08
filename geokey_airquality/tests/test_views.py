@@ -16,9 +16,9 @@ from django.contrib.sites.shortcuts import get_current_site
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from geokey import version
-from geokey.users.tests.model_factories import UserF
+from geokey.users.tests.model_factories import UserFactory
 from geokey.projects.models import Project
-from geokey.projects.tests.model_factories import ProjectF
+from geokey.projects.tests.model_factories import ProjectFactory
 from geokey.categories.models import Category
 from geokey.categories.tests.model_factories import (
     CategoryFactory,
@@ -35,11 +35,11 @@ from geokey_airquality.models import (
     AirQualityMeasurement
 )
 from geokey_airquality.tests.model_factories import (
-    AirQualityProjectF,
-    AirQualityCategoryF,
-    AirQualityFieldF,
-    AirQualityLocationF,
-    AirQualityMeasurementF
+    AirQualityProjectFactory,
+    AirQualityCategoryFactory,
+    AirQualityFieldFactory,
+    AirQualityLocationFactory,
+    AirQualityMeasurementFactory
 )
 
 
@@ -56,8 +56,8 @@ class AQIndexViewTest(TestCase):
 
     def setUp(self):
 
-        self.superuser = UserF.create(**{'is_superuser': True})
-        self.user = UserF.create(**{'is_superuser': False})
+        self.superuser = UserFactory.create(**{'is_superuser': True})
+        self.user = UserFactory.create(**{'is_superuser': False})
         self.anonym = AnonymousUser()
 
         self.template = 'aq_index.html'
@@ -69,7 +69,9 @@ class AQIndexViewTest(TestCase):
         messages = FallbackStorage(self.request)
         setattr(self.request, '_messages', messages)
 
-        self.project = AirQualityProjectF.create(project=ProjectF.create())
+        self.project = AirQualityProjectFactory.create(
+            project=ProjectFactory.create()
+        )
 
     def test_get_with_anonymous(self):
 
@@ -119,8 +121,8 @@ class AQAddViewTest(TestCase):
 
     def setUp(self):
 
-        self.superuser = UserF.create(**{'is_superuser': True})
-        self.user = UserF.create(**{'is_superuser': False})
+        self.superuser = UserFactory.create(**{'is_superuser': True})
+        self.user = UserFactory.create(**{'is_superuser': False})
         self.anonym = AnonymousUser()
 
         self.template = 'aq_add.html'
@@ -131,7 +133,7 @@ class AQAddViewTest(TestCase):
         messages = FallbackStorage(self.request)
         setattr(self.request, '_messages', messages)
 
-        self.project = ProjectF.create()
+        self.project = ProjectFactory.create()
 
         self.category_types = collections.OrderedDict(
             sorted(dict(AirQualityCategory.TYPES).items())
@@ -326,8 +328,8 @@ class AQProjectViewTest(TestCase):
 
     def setUp(self):
 
-        self.superuser = UserF.create(**{'is_superuser': True})
-        self.user = UserF.create(**{'is_superuser': False})
+        self.superuser = UserFactory.create(**{'is_superuser': True})
+        self.user = UserFactory.create(**{'is_superuser': False})
         self.anonym = AnonymousUser()
 
         self.template = 'aq_project.html'
@@ -338,8 +340,8 @@ class AQProjectViewTest(TestCase):
         messages = FallbackStorage(self.request)
         setattr(self.request, '_messages', messages)
 
-        self.project = ProjectF.create()
-        self.aq_project = AirQualityProjectF.create(project=self.project)
+        self.project = ProjectFactory.create()
+        self.aq_project = AirQualityProjectFactory.create(project=self.project)
 
         self.category_types = collections.OrderedDict(
             sorted(dict(AirQualityCategory.TYPES).items())
@@ -654,8 +656,8 @@ class AQRemoveViewTest(TestCase):
 
     def setUp(self):
 
-        self.superuser = UserF.create(**{'is_superuser': True})
-        self.user = UserF.create(**{'is_superuser': False})
+        self.superuser = UserFactory.create(**{'is_superuser': True})
+        self.user = UserFactory.create(**{'is_superuser': False})
         self.anonym = AnonymousUser()
 
         self.template = 'base.html'
@@ -667,26 +669,30 @@ class AQRemoveViewTest(TestCase):
         messages = FallbackStorage(self.request)
         setattr(self.request, '_messages', messages)
 
-        self.project = ProjectF.create()
+        self.project = ProjectFactory.create()
         self.category = CategoryFactory.create()
         self.field = TextFieldFactory.create()
 
-        self.aq_project_1 = AirQualityProjectF.create(project=self.project)
-        self.aq_category_1 = AirQualityCategoryF.create(
+        self.aq_project_1 = AirQualityProjectFactory.create(
+            project=self.project
+        )
+        self.aq_category_1 = AirQualityCategoryFactory.create(
             category=self.category,
             project=self.aq_project_1
         )
-        self.aq_field_1 = AirQualityFieldF.create(
+        self.aq_field_1 = AirQualityFieldFactory.create(
             field=self.field,
             category=self.aq_category_1
         )
 
-        self.aq_project_2 = AirQualityProjectF.create(project=self.project)
-        self.aq_category_2 = AirQualityCategoryF.create(
+        self.aq_project_2 = AirQualityProjectFactory.create(
+            project=self.project
+        )
+        self.aq_category_2 = AirQualityCategoryFactory.create(
             category=self.category,
             project=self.aq_project_2
         )
-        self.aq_field_1 = AirQualityFieldF.create(
+        self.aq_field_1 = AirQualityFieldFactory.create(
             field=self.field,
             category=self.aq_category_2
         )
@@ -760,12 +766,12 @@ class AQProjectsSingleAjaxViewTest(TestCase):
 
     def setUp(self):
 
-        self.superuser = UserF.create(**{'is_superuser': True})
-        self.creator = UserF.create(**{'is_superuser': False})
-        self.user = UserF.create(**{'is_superuser': False})
+        self.superuser = UserFactory.create(**{'is_superuser': True})
+        self.creator = UserFactory.create(**{'is_superuser': False})
+        self.user = UserFactory.create(**{'is_superuser': False})
         self.anonym = AnonymousUser()
 
-        self.project = ProjectF.create(add_contributors=[self.creator])
+        self.project = ProjectFactory.create(add_contributors=[self.creator])
 
         self.url = '/ajax/airquality/projects/%s/' % self.project.id
 
@@ -855,12 +861,12 @@ class AQCategoriesSingleAjaxViewTest(TestCase):
 
     def setUp(self):
 
-        self.superuser = UserF.create(**{'is_superuser': True})
-        self.creator = UserF.create(**{'is_superuser': False})
-        self.user = UserF.create(**{'is_superuser': False})
+        self.superuser = UserFactory.create(**{'is_superuser': True})
+        self.creator = UserFactory.create(**{'is_superuser': False})
+        self.user = UserFactory.create(**{'is_superuser': False})
         self.anonym = AnonymousUser()
 
-        self.project = ProjectF.create(add_contributors=[self.creator])
+        self.project = ProjectFactory.create(add_contributors=[self.creator])
         self.category = CategoryFactory.create(
             creator=self.creator,
             project=self.project
@@ -995,8 +1001,8 @@ class AQProjectsAPIViewTest(TestCase):
 
     def setUp(self):
 
-        self.contributor = UserF.create()
-        self.user = UserF.create()
+        self.contributor = UserFactory.create()
+        self.user = UserFactory.create()
         self.anonym = AnonymousUser()
 
         self.url = '/api/airquality/projects/'
@@ -1004,13 +1010,19 @@ class AQProjectsAPIViewTest(TestCase):
         self.request_get = self.factory.get(self.url)
         self.view = views.AQProjectsAPIView.as_view()
 
-        self.project_1 = ProjectF.create(add_contributors=[self.contributor])
-        self.project_2 = ProjectF.create(add_contributors=[self.contributor])
-        self.project_3 = ProjectF.create(add_contributors=[self.contributor])
-        self.aq_project_1 = AirQualityProjectF.create(
+        self.project_1 = ProjectFactory.create(
+            add_contributors=[self.contributor]
+        )
+        self.project_2 = ProjectFactory.create(
+            add_contributors=[self.contributor]
+        )
+        self.project_3 = ProjectFactory.create(
+            add_contributors=[self.contributor]
+        )
+        self.aq_project_1 = AirQualityProjectFactory.create(
             project=self.project_1
         )
-        self.aq_project_2 = AirQualityProjectF.create(
+        self.aq_project_2 = AirQualityProjectFactory.create(
             status='inactive',
             project=self.project_2
         )
@@ -1043,7 +1055,7 @@ class AQProjectsAPIViewTest(TestCase):
 
     def test_get_when_original_project_deleted(self):
 
-        self.aq_project_3 = AirQualityProjectF.create(
+        self.aq_project_3 = AirQualityProjectFactory.create(
             project=self.project_3
         )
         self.project_3.delete()
@@ -1061,8 +1073,8 @@ class AQLocationsAPIViewTest(TestCase):
 
     def setUp(self):
 
-        self.creator = UserF.create()
-        self.user = UserF.create()
+        self.creator = UserFactory.create()
+        self.user = UserFactory.create()
         self.anonym = AnonymousUser()
 
         self.url = '/api/airquality/locations/'
@@ -1087,8 +1099,12 @@ class AQLocationsAPIViewTest(TestCase):
         )
         self.view = views.AQLocationsAPIView.as_view()
 
-        self.location_1 = AirQualityLocationF.create(creator=self.creator)
-        self.location_2 = AirQualityLocationF.create(creator=UserF.create())
+        self.location_1 = AirQualityLocationFactory.create(
+            creator=self.creator
+        )
+        self.location_2 = AirQualityLocationFactory.create(
+            creator=UserFactory.create()
+        )
 
     def test_get_with_anonymous(self):
 
@@ -1118,11 +1134,11 @@ class AQLocationsAPIViewTest(TestCase):
 
     def test_get_together_with_measurements(self):
 
-        AirQualityMeasurementF.create(
+        AirQualityMeasurementFactory.create(
             location=self.location_1,
             creator=self.location_1.creator
         )
-        AirQualityMeasurementF.create(
+        AirQualityMeasurementFactory.create(
             location=self.location_2,
             creator=self.location_2.creator
         )
@@ -1156,11 +1172,11 @@ class AQLocationsSingleAPIViewTest(TestCase):
 
     def setUp(self):
 
-        self.creator = UserF.create()
-        self.user = UserF.create()
+        self.creator = UserFactory.create()
+        self.user = UserFactory.create()
         self.anonym = AnonymousUser()
 
-        self.location = AirQualityLocationF.create(creator=self.creator)
+        self.location = AirQualityLocationFactory.create(creator=self.creator)
 
         self.url = '/api/airquality/locations/%s/' % self.location.id
         self.factory = APIRequestFactory()
@@ -1208,11 +1224,11 @@ class AQLocationsSingleAPIViewTest(TestCase):
 
     def test_delete_when_there_are_measurements(self):
 
-        self.measurement_1 = AirQualityMeasurementF.create(
+        self.measurement_1 = AirQualityMeasurementFactory.create(
             location=self.location,
             creator=self.location.creator
         )
-        self.measurement_2 = AirQualityMeasurementF.create(
+        self.measurement_2 = AirQualityMeasurementFactory.create(
             location=self.location,
             creator=self.location.creator
         )
@@ -1246,11 +1262,11 @@ class AQMeasurementsAPIViewTest(TestCase):
 
     def setUp(self):
 
-        self.creator = UserF.create()
-        self.user = UserF.create()
+        self.creator = UserFactory.create()
+        self.user = UserFactory.create()
         self.anonym = AnonymousUser()
 
-        self.location = AirQualityLocationF.create(
+        self.location = AirQualityLocationFactory.create(
             creator=self.creator,
             properties={
                 'distance_from_road': '10m',
@@ -1275,10 +1291,10 @@ class AQMeasurementsAPIViewTest(TestCase):
         )
         self.view = views.AQMeasurementsAPIView.as_view()
 
-        self.project = ProjectF.create(add_contributors=[self.creator])
-        self.aq_project = AirQualityProjectF.create(project=self.project)
+        self.project = ProjectFactory.create(add_contributors=[self.creator])
+        self.aq_project = AirQualityProjectFactory.create(project=self.project)
         self.category = CategoryFactory.create(project=self.project)
-        self.aq_category = AirQualityCategoryF.create(
+        self.aq_category = AirQualityCategoryFactory.create(
             type='40-60',
             category=self.category,
             project=self.aq_project
@@ -1293,52 +1309,52 @@ class AQMeasurementsAPIViewTest(TestCase):
         self.field_8 = TextFieldFactory.create(category=self.category)
         self.field_9 = TextFieldFactory.create(category=self.category)
         self.field_10 = TextFieldFactory.create(category=self.category)
-        self.aq_field_1 = AirQualityFieldF.create(
+        self.aq_field_1 = AirQualityFieldFactory.create(
             type='01. Results',
             field=self.field_1,
             category=self.aq_category
         )
-        self.aq_field_2 = AirQualityFieldF.create(
+        self.aq_field_2 = AirQualityFieldFactory.create(
             type='02. Date out',
             field=self.field_2,
             category=self.aq_category
         )
-        self.aq_field_3 = AirQualityFieldF.create(
+        self.aq_field_3 = AirQualityFieldFactory.create(
             type='03. Time out',
             field=self.field_3,
             category=self.aq_category
         )
-        self.aq_field_4 = AirQualityFieldF.create(
+        self.aq_field_4 = AirQualityFieldFactory.create(
             type='04. Date collected',
             field=self.field_4,
             category=self.aq_category
         )
-        self.aq_field_5 = AirQualityFieldF.create(
+        self.aq_field_5 = AirQualityFieldFactory.create(
             type='05. Time collected',
             field=self.field_5,
             category=self.aq_category
         )
-        self.aq_field_6 = AirQualityFieldF.create(
+        self.aq_field_6 = AirQualityFieldFactory.create(
             type='06. Exposure time (min)',
             field=self.field_6,
             category=self.aq_category
         )
-        self.aq_field_7 = AirQualityFieldF.create(
+        self.aq_field_7 = AirQualityFieldFactory.create(
             type='07. Distance from the road',
             field=self.field_7,
             category=self.aq_category
         )
-        self.aq_field_8 = AirQualityFieldF.create(
+        self.aq_field_8 = AirQualityFieldFactory.create(
             type='08. Height from ground',
             field=self.field_8,
             category=self.aq_category
         )
-        self.aq_field_9 = AirQualityFieldF.create(
+        self.aq_field_9 = AirQualityFieldFactory.create(
             type='09. Site characteristics',
             field=self.field_9,
             category=self.aq_category
         )
-        self.aq_field_10 = AirQualityFieldF.create(
+        self.aq_field_10 = AirQualityFieldFactory.create(
             type='10. Additional details',
             field=self.field_10,
             category=self.aq_category
@@ -1436,22 +1452,22 @@ class AQMeasurementsSingleAPIViewTest(TestCase):
 
     def setUp(self):
 
-        self.creator = UserF.create()
-        self.user = UserF.create()
+        self.creator = UserFactory.create()
+        self.user = UserFactory.create()
         self.anonym = AnonymousUser()
 
-        self.location_1 = AirQualityLocationF.create(
+        self.location_1 = AirQualityLocationFactory.create(
             creator=self.creator,
             properties={
                 'additional_details': 'Heavy traffic.'
             }
         )
-        self.location_2 = AirQualityLocationF.create(creator=self.user)
-        self.measurement_1 = AirQualityMeasurementF.create(
+        self.location_2 = AirQualityLocationFactory.create(creator=self.user)
+        self.measurement_1 = AirQualityMeasurementFactory.create(
             location=self.location_1,
             creator=self.location_1.creator
         )
-        self.measurement_2 = AirQualityMeasurementF.create(
+        self.measurement_2 = AirQualityMeasurementFactory.create(
             location=self.location_2,
             creator=self.location_2.creator
         )
@@ -1479,10 +1495,10 @@ class AQMeasurementsSingleAPIViewTest(TestCase):
         )
         self.view = views.AQMeasurementsSingleAPIView.as_view()
 
-        self.project = ProjectF.create(add_contributors=[self.creator])
-        self.aq_project = AirQualityProjectF.create(project=self.project)
+        self.project = ProjectFactory.create(add_contributors=[self.creator])
+        self.aq_project = AirQualityProjectFactory.create(project=self.project)
         self.category = CategoryFactory.create(project=self.project)
-        self.aq_category = AirQualityCategoryF.create(
+        self.aq_category = AirQualityCategoryFactory.create(
             type='60-80',
             category=self.category,
             project=self.aq_project
@@ -1497,52 +1513,52 @@ class AQMeasurementsSingleAPIViewTest(TestCase):
         self.field_8 = TextFieldFactory.create(category=self.category)
         self.field_9 = TextFieldFactory.create(category=self.category)
         self.field_10 = TextFieldFactory.create(category=self.category)
-        self.aq_field_1 = AirQualityFieldF.create(
+        self.aq_field_1 = AirQualityFieldFactory.create(
             type='01. Results',
             field=self.field_1,
             category=self.aq_category
         )
-        self.aq_field_2 = AirQualityFieldF.create(
+        self.aq_field_2 = AirQualityFieldFactory.create(
             type='02. Date out',
             field=self.field_2,
             category=self.aq_category
         )
-        self.aq_field_3 = AirQualityFieldF.create(
+        self.aq_field_3 = AirQualityFieldFactory.create(
             type='03. Time out',
             field=self.field_3,
             category=self.aq_category
         )
-        self.aq_field_4 = AirQualityFieldF.create(
+        self.aq_field_4 = AirQualityFieldFactory.create(
             type='04. Date collected',
             field=self.field_4,
             category=self.aq_category
         )
-        self.aq_field_5 = AirQualityFieldF.create(
+        self.aq_field_5 = AirQualityFieldFactory.create(
             type='05. Time collected',
             field=self.field_5,
             category=self.aq_category
         )
-        self.aq_field_6 = AirQualityFieldF.create(
+        self.aq_field_6 = AirQualityFieldFactory.create(
             type='06. Exposure time (min)',
             field=self.field_6,
             category=self.aq_category
         )
-        self.aq_field_7 = AirQualityFieldF.create(
+        self.aq_field_7 = AirQualityFieldFactory.create(
             type='07. Distance from the road',
             field=self.field_7,
             category=self.aq_category
         )
-        self.aq_field_8 = AirQualityFieldF.create(
+        self.aq_field_8 = AirQualityFieldFactory.create(
             type='08. Height from ground',
             field=self.field_8,
             category=self.aq_category
         )
-        self.aq_field_9 = AirQualityFieldF.create(
+        self.aq_field_9 = AirQualityFieldFactory.create(
             type='09. Site characteristics',
             field=self.field_9,
             category=self.aq_category
         )
-        self.aq_field_10 = AirQualityFieldF.create(
+        self.aq_field_10 = AirQualityFieldFactory.create(
             type='10. Additional details',
             field=self.field_10,
             category=self.aq_category

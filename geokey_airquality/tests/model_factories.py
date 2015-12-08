@@ -4,8 +4,8 @@ import random
 from django.utils import timezone
 from django.contrib.gis.geos import Point
 
-from geokey.users.tests.model_factories import UserF
-from geokey.projects.tests.model_factories import ProjectF
+from geokey.users.tests.model_factories import UserFactory
+from geokey.projects.tests.model_factories import ProjectFactory
 from geokey.categories.tests.model_factories import (
     CategoryFactory,
     TextFieldFactory
@@ -20,45 +20,45 @@ from geokey_airquality.models import (
 )
 
 
-class AirQualityProjectF(factory.django.DjangoModelFactory):
+class AirQualityProjectFactory(factory.django.DjangoModelFactory):
 
     status = 'active'
-    creator = factory.SubFactory(UserF)
-    project = factory.SubFactory(ProjectF)
+    creator = factory.SubFactory(UserFactory)
+    project = factory.SubFactory(ProjectFactory)
 
     class Meta:
         model = AirQualityProject
 
 
-class AirQualityCategoryF(factory.django.DjangoModelFactory):
+class AirQualityCategoryFactory(factory.django.DjangoModelFactory):
 
     type = factory.LazyAttribute(lambda s: random.choice(
         dict(AirQualityCategory.TYPES).keys())
     )
     category = factory.SubFactory(CategoryFactory)
-    project = factory.SubFactory(AirQualityProjectF)
+    project = factory.SubFactory(AirQualityProjectFactory)
 
     class Meta:
         model = AirQualityCategory
 
 
-class AirQualityFieldF(factory.django.DjangoModelFactory):
+class AirQualityFieldFactory(factory.django.DjangoModelFactory):
 
     type = factory.LazyAttribute(lambda s: random.choice(
         dict(AirQualityField.TYPES).keys())
     )
     field = factory.SubFactory(TextFieldFactory)
-    category = factory.SubFactory(AirQualityCategoryF)
+    category = factory.SubFactory(AirQualityCategoryFactory)
 
     class Meta:
         model = AirQualityField
 
 
-class AirQualityLocationF(factory.django.DjangoModelFactory):
+class AirQualityLocationFactory(factory.django.DjangoModelFactory):
 
     name = factory.Sequence(lambda n: 'Location %d' % n)
     geometry = Point(-1.5126800537109375, 51.062975588514966)
-    creator = factory.SubFactory(UserF)
+    creator = factory.SubFactory(UserFactory)
     created = timezone.now()
     properties = {}
 
@@ -66,11 +66,11 @@ class AirQualityLocationF(factory.django.DjangoModelFactory):
         model = AirQualityLocation
 
 
-class AirQualityMeasurementF(factory.django.DjangoModelFactory):
+class AirQualityMeasurementFactory(factory.django.DjangoModelFactory):
 
-    location = factory.SubFactory(AirQualityLocationF)
+    location = factory.SubFactory(AirQualityLocationFactory)
     barcode = '123456'
-    creator = factory.SubFactory(UserF)
+    creator = factory.SubFactory(UserFactory)
     started = timezone.now()
     finished = None
     properties = {}
