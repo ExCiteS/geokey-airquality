@@ -169,7 +169,7 @@ Response:
             "id": 115,
             "type": "Feature",
             "geometry": {
-                // GeoJSON object
+                // GeoJSON point
             },
             "name": "South Bank",
             "created": "2015-09-15T09:40:01.747Z",
@@ -182,11 +182,84 @@ Response:
         }
     ]
 
+**Add new location**
+
+**Add new measurement to your location**
+
+.. code-block:: console
+
+    POST /api/airquality/locations/
+
+Request body:
+
+.. code-block:: console
+
+    {
+        "type": "Feature",
+        "geometry": {
+            // GeoJSON point
+        },
+        "name": "My new location",
+        "properties": {
+            "height": 4
+        }
+    }
+
+Response:
+
+.. code-block:: console
+
+    [
+        {
+            "id": 117,
+            "type": "Feature",
+            "geometry": {
+                // GeoJSON point
+            },
+            "name": "My new location",
+            "created": "2015-09-22T07:22:08.147Z",
+            "properties": {
+                "height": 4
+            },
+            "measurements": []
+        }
+    ]
+
 **Delete your location:**
 
 .. code-block:: console
 
     DELETE /api/airquality/locations/:location_id/
+
+**Add new measurement to your location**
+
+.. code-block:: console
+
+    POST /api/airquality/locations/:location_id/measurement/
+
+Request body:
+
+.. code-block:: console
+
+    {
+        "barcode": "145023"
+        "called": "2015-12-22T07:08:08.121Z",
+        "started": "2015-12-23T09:12:02.247Z"
+    }
+
+Response:
+
+.. code-block:: console
+
+    {
+        "id": 115,
+        "barcode": "145023",
+        "started": "2015-12-23T09:12:02.247Z",
+        "finished": null,
+        "properties": {
+            "results": null
+        }
+    }
 
 **Update your measurement:**
 
