@@ -77,6 +77,14 @@ class ProjectDeleteTest(TestCase):
         )
         self.assertEquals(len(mail.outbox), 1)
 
+    def test_pre_delete_project_when_no_aq_project(self):
+
+        project = ProjectF.create(status='active')
+
+        pre_delete_project(Project, instance=project)
+
+        self.assertEquals(len(mail.outbox), 0)
+
 
 class CategorySaveTest(TestCase):
 
@@ -133,6 +141,22 @@ class CategoryDeleteTest(TestCase):
             False
         )
         self.assertEquals(len(mail.outbox), 1)
+
+    def test_pre_delete_category_when_no_aq_categort(self):
+
+        project = ProjectF.create(status='active')
+        category = CategoryFactory.create(project=project)
+
+        aq_project = AirQualityProjectF.create(
+            status='active',
+            project=project
+        )
+
+        pre_delete_category(Category, instance=category)
+
+        reference = AirQualityProject.objects.get(pk=aq_project.id)
+        self.assertEqual(reference.status, 'active')
+        self.assertEquals(len(mail.outbox), 0)
 
 
 class FieldSaveTest(TestCase):
@@ -200,3 +224,24 @@ class FieldDeleteTest(TestCase):
             False
         )
         self.assertEquals(len(mail.outbox), 1)
+
+    def test_pre_delete_field_when_no_aq_field(self):
+
+        project = ProjectF.create(status='active')
+        category = CategoryFactory.create(project=project)
+        field = TextFieldFactory.create(category=category)
+
+        aq_project = AirQualityProjectF.create(
+            status='active',
+            project=project
+        )
+        AirQualityCategoryF.create(
+            category=category,
+            project=aq_project
+        )
+
+        pre_delete_field(TextField, instance=field)
+
+        reference = AirQualityProject.objects.get(pk=aq_project.id)
+        self.assertEqual(reference.status, 'active')
+        self.assertEquals(len(mail.outbox), 0)
