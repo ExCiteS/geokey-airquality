@@ -754,7 +754,7 @@ class MeasurementAPIMixin(object):
                                 'characteristics'
                             )
                         elif key == 'additional_details':
-                            value = instance_properties.get(
+                            value = instance.properties.get(
                                 'additional_details'
                             )
 
