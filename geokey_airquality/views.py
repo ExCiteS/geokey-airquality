@@ -742,11 +742,11 @@ class MeasurementAPIMixin(object):
                             value = instance.finished - instance.started
                             value = int(value.total_seconds() / 60)
                         elif key == 'distance_from_road':
-                            value = instance_properties.get(
+                            value = '%sm' % instance_properties.get(
                                 'distance'
                             )
                         elif key == 'height':
-                            value = instance_properties.get(
+                            value = '%sm' % instance_properties.get(
                                 'height'
                             )
                         elif key == 'site_characteristics':
