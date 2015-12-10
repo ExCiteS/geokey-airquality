@@ -743,7 +743,7 @@ class MeasurementAPIMixin(object):
                             value = int(value.total_seconds() / 60)
                         elif key == 'distance_from_road':
                             value = instance_properties.get(
-                                'distance_from_road'
+                                'distance'
                             )
                         elif key == 'height':
                             value = instance_properties.get(
@@ -751,7 +751,7 @@ class MeasurementAPIMixin(object):
                             )
                         elif key == 'site_characteristics':
                             value = instance_properties.get(
-                                'site_characteristics'
+                                'characteristics'
                             )
                         elif key == 'additional_details':
                             value = instance_properties.get(
