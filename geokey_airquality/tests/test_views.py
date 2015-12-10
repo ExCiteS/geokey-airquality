@@ -1086,7 +1086,7 @@ class AQLocationsAPIViewTest(TestCase):
             },
             'name': 'Test Location',
             'properties': {
-                'distance_from_road': 2
+                'distance': 2
             }
         }
 
@@ -1269,8 +1269,8 @@ class AQMeasurementsAPIViewTest(TestCase):
         self.location = AirQualityLocationFactory.create(
             creator=self.creator,
             properties={
-                'distance_from_road': '10m',
-                'height': '2m'
+                'height': 2,
+                'distance': 10
             }
         )
 
@@ -1397,7 +1397,7 @@ class AQMeasurementsAPIViewTest(TestCase):
 
         self.data['finished'] = timezone.now().isoformat()
         self.data['project'] = 158
-        self.data['properties'] = {'results': '45.15'}
+        self.data['properties'] = {'results': 45.15}
         self.request_post = self.factory.post(
             self.url,
             json.dumps(self.data),
@@ -1418,7 +1418,7 @@ class AQMeasurementsAPIViewTest(TestCase):
 
         self.data['finished'] = timezone.now().isoformat()
         self.data['project'] = self.project.id
-        self.data['properties'] = {'results': '48.05'}
+        self.data['properties'] = {'results': 48.05}
 
         self.request_post = self.factory.post(
             self.url,
@@ -1600,7 +1600,7 @@ class AQMeasurementsSingleAPIViewTest(TestCase):
     def test_patch_when_submitting_and_no_project(self):
 
         self.data['project'] = 183
-        self.data['properties'] = {'results': '70.51'}
+        self.data['properties'] = {'results': 70.51}
         self.request_patch = self.factory.patch(
             self.url,
             json.dumps(self.data),
@@ -1625,7 +1625,7 @@ class AQMeasurementsSingleAPIViewTest(TestCase):
     def test_patch_when_submitting(self):
 
         self.data['project'] = self.project.id
-        self.data['properties'] = {'results': '72.78'}
+        self.data['properties'] = {'results': 72.78}
         self.request_patch = self.factory.patch(
             self.url,
             json.dumps(self.data),
