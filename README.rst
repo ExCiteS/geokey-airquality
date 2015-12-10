@@ -174,7 +174,9 @@ Response:
             "name": "South Bank",
             "created": "2015-09-15T09:40:01.747Z",
             "properties": {
-                "additional_details": "Busy location."
+                "height": 2 // height from ground
+                "distance": 3.5 // distance from road,
+                "characteristics": null // site characteristics
             },
             "measurements": [
                 // a list of measurements
@@ -199,7 +201,8 @@ Request body:
         },
         "name": "My new location",
         "properties": {
-            "height": 4
+            "height": 4.2,
+            "distance": 7
         }
     }
 
@@ -217,7 +220,9 @@ Response:
             "name": "My new location",
             "created": "2015-09-22T07:22:08.147Z",
             "properties": {
-                "height": 4
+                "height": 4.2,
+                "distance": 7,
+                "characteristics": null
             },
             "measurements": []
         }
@@ -255,7 +260,8 @@ Response:
         "started": "2015-12-23T09:12:02.247Z",
         "finished": null,
         "properties": {
-            "results": null
+            "results": null, // measurement results
+            "additional_details": null // additional details (per measurement)
         }
     }
 
@@ -274,7 +280,8 @@ Request body:
         "finished": "2015-12-23T09:22:01.147Z",
         "project": "45",
         "properties": {
-            "results": "64.78"
+            "results": 64.78,
+            "additional_details": null
         }
     }
 
@@ -292,7 +299,8 @@ Response (when no project):
         "started": "2015-11-29T12:01:04.178Z",
         "finished": "2015-12-23T09:22:01.147Z",
         "properties": {
-            "results": 64.78
+            "results": 64.78,
+            "additional_details": null
         }
     }
 
