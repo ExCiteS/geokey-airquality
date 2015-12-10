@@ -205,7 +205,7 @@ class MeasurementSerializer(BaseSerializer):
 
         if properties is not None:
             for key, value in properties.iteritems():
-                if key in ['results']:
+                if key in ['results', 'additional_details']:
                     self._validated_data['properties'][key] = value
 
         # Raise the exception
