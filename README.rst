@@ -137,6 +137,12 @@ API
 
 Sign the request with the OAuth access token to authenticate a user.
 
+**Sends a CSV sheet via email:**
+
+.. code-block:: console
+
+    GET /api/airquality/sheet/
+
 **Get added projects:**
 
 .. code-block:: console
