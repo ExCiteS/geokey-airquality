@@ -137,7 +137,7 @@ API
 
 Sign the request with the OAuth access token to authenticate a user.
 
-**Get dded projects:**
+**Get added projects:**
 
 .. code-block:: console
 
