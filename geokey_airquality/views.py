@@ -1,6 +1,10 @@
 import collections
 import operator
+import csv
+import StringIO
 
+from django.conf import settings
+from django.core import mail
 from django.core.exceptions import PermissionDenied
 from django.views.generic import TemplateView
 from django.template.defaultfilters import date as filter_date
@@ -514,6 +518,98 @@ class AQCategoriesSingleAjaxView(APIView):
 # Public API Views
 #
 # ############################################################################
+
+class AQSheetAPIView(APIView):
+
+    """
+    API endpoint for a sheet.
+    """
+
+    def get(self, request):
+        """
+        Sends a sheet of finished measurements started by the user.
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the request.
+
+        Returns
+        -------
+        rest_framework.response.Response
+            Contains empty response indicating successful send of an email or
+            an error message.
+        """
+
+        user = request.user
+
+        if user.is_anonymous():
+            return Response(
+                {'error': 'You have no rights to retrieve a sheet.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        out = StringIO.StringIO()
+        fieldnames = [
+            'Barcode',
+            'Location',
+            'Site characteristics',
+            'Height from ground (m)',
+            'Distance from the road (m)',
+            'Additional details',
+            'Date out',
+            'Date in',
+            'Time out',
+            'Time in',
+            'Exposure time (min)',
+            'Exposure time (hr)'
+        ]
+
+        writer = csv.DictWriter(out, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for measurement in AirQualityMeasurement.objects.filter(
+                creator=user
+        ).exclude(finished=None).distinct():
+            location = measurement.location
+            exposure = measurement.finished - measurement.started
+
+            row = {
+                'Barcode': measurement.barcode,
+                'Location': location.name,
+                'Site characteristics': location.properties.get(
+                    'characteristics'),
+                'Height from ground (m)': location.properties.get(
+                    'height'),
+                'Distance from the road (m)': location.properties.get(
+                    'distance'),
+                'Additional details': measurement.properties.get(
+                    'additional_details'),
+                'Date out': filter_date(measurement.started, 'd/m/Y'),
+                'Date in': filter_date(measurement.finished, 'd/m/Y'),
+                'Time out': filter_date(measurement.started, 'H:i'),
+                'Time in': filter_date(measurement.finished, 'H:i'),
+                'Exposure time (min)': int(exposure.total_seconds() / 60),
+                'Exposure time (hr)': int(exposure.total_seconds() / 3600)
+            }
+
+            writer.writerow(row)
+
+        message = mail.EmailMessage(
+            'Air Quality: Sheet of finished measurements',
+            'Please find the attached CSV in this email.',
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email]
+        )
+        message.attach('sheet.csv', out.getvalue(), 'text/csv')
+
+        connection = mail.get_connection()
+        connection.open()
+        connection.send_messages([message])
+        connection.close()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class AQProjectsAPIView(APIView):
 

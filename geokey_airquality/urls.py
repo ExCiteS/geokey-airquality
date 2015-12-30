@@ -42,6 +42,10 @@ urlpatterns = patterns(
     # ###########################
 
     url(r'^api/airquality/'
+        r'sheet/$',
+        views.AQSheetAPIView.as_view(),
+        name='api_sheet'),
+    url(r'^api/airquality/'
         r'locations/$',
         views.AQLocationsAPIView.as_view(),
         name='api_locations'),

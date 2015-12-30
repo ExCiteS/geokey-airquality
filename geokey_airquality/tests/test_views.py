@@ -4,6 +4,7 @@ import operator
 
 from datetime import timedelta
 
+from django.core import mail
 from django.http import HttpRequest
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -996,6 +997,60 @@ class AQCategoriesSingleAjaxViewTest(TestCase):
 # Public API Views
 #
 # ############################################################################
+
+class AQSheetAPIViewTest(TestCase):
+
+    def setUp(self):
+
+        self.creator = UserFactory.create()
+        self.user = UserFactory.create()
+        self.anonym = AnonymousUser()
+
+        self.url = '/api/airquality/sheet/'
+        self.factory = APIRequestFactory()
+        self.request_get = self.factory.get(self.url)
+        self.view = views.AQSheetAPIView.as_view()
+
+        self.location_1 = AirQualityLocationFactory.create(
+            creator=self.creator
+        )
+        self.location_2 = AirQualityLocationFactory.create(
+            creator=UserFactory.create()
+        )
+
+        AirQualityMeasurementFactory.create(
+            location=self.location_1,
+            creator=self.location_1.creator,
+            finished=timezone.now()
+        )
+        AirQualityMeasurementFactory.create(
+            location=self.location_1,
+            creator=self.location_1.creator
+        )
+
+    def test_get_with_anonymous(self):
+
+        force_authenticate(self.request_get, user=self.anonym)
+        response = self.view(self.request_get).render()
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_with_user(self):
+
+        force_authenticate(self.request_get, user=self.user)
+        response = self.view(self.request_get).render()
+
+        self.assertEqual(response.status_code, 204)
+        self.assertEquals(len(mail.outbox), 1)
+
+    def test_get_with_creator(self):
+
+        force_authenticate(self.request_get, user=self.creator)
+        response = self.view(self.request_get).render()
+
+        self.assertEqual(response.status_code, 204)
+        self.assertEquals(len(mail.outbox), 1)
+
 
 class AQProjectsAPIViewTest(TestCase):
 

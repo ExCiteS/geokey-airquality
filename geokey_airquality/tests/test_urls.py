@@ -54,6 +54,16 @@ class UrlsTests(TestCase):
         self.assertEqual(resolved_url.func.func_name, view.__name__)
         self.assertEqual(int(resolved_url.kwargs['project_id']), 1)
 
+    def test_api_sheet(self):
+
+        reversed_url = reverse('geokey_airquality:api_sheet')
+        self.assertEqual(reversed_url, '/api/airquality/sheet/')
+
+        resolved = resolve('/api/airquality/sheet/')
+        view = views.AQSheetAPIView
+
+        self.assertEqual(resolved.func.func_name, view.__name__)
+
     def test_api_locations(self):
 
         reversed_url = reverse('geokey_airquality:api_locations')
