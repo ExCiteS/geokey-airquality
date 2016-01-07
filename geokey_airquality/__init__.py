@@ -8,6 +8,5 @@ register(
     'geokey_airquality',
     'Air Quality',
     display_admin=True,
-    superuser=True,
-    version=__version__
+    superuser=True
 )
