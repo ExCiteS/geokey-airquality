@@ -47,7 +47,7 @@ class Command(NoArgsCommand):
 
             if len(due_to_expire) > 0 or len(already_expired) > 0:
                 message = get_template(
-                    'emails/measurements_to_be_collected.txt'
+                    'emails/measurements_to_be_finished.txt'
                 ).render(Context({
                     'receiver': user.display_name,
                     'due_to_expire': due_to_expire,
@@ -55,7 +55,7 @@ class Command(NoArgsCommand):
                 }))
 
                 messages.append(mail.EmailMessage(
-                    'Air Quality: Measurements to be collected',
+                    'Air Quality: Measurements to be finished',
                     message,
                     settings.DEFAULT_FROM_EMAIL,
                     [user.email]
