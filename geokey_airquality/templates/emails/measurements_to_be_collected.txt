@@ -3,11 +3,11 @@ Dear {{ receiver }},
 {% spaceless %}{% if due_to_expire|length > 0 %}
 The following diffusion tube{{ due_to_expire|length|pluralize }} should be collected and their measurements should be finished in the next 3 days:
 {% for measurement in due_to_expire %}
--- {{ measurement.barcode }} in the {{ measurement.location.name }}
+{{ measurement.barcode }} in the {{ measurement.location.name }}
 {% endfor %}{% endif %}{% if already_expired|length > 0 %}
 The following diffusion tube{{ already_expired|length|pluralize }} should have already been collected and their measurements should have been finished:
 {% for measurement in already_expired %}
--- {{ measurement.barcode }} in the {{ measurement.location.name }}
+{{ measurement.barcode }} in the {{ measurement.location.name }}
 {% endfor %}{% endif %}{% endspaceless %}
 
 ---
