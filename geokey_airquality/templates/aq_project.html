@@ -25,15 +25,17 @@ data-project="{{ project.project.id }}"
 {% endfor %}
 {% endblock %}
 
-{% block title %} | Air Quality: Project {{ project.project.name }}{% endblock %}
+{% block title %} | Air Quality: Project {{ project.project.name }} overview{% endblock %}
 
 {% block main %}
 {% include 'aq_header.html' %}
 
 <div class="container">
+    {% include 'aq_breadcrumb.html' %}
+
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
-            <h3 class="header">Project {{ project.project.name }}</h3>
+            <h3 class="header">{{ project.project.name }}</h3>
 
             {% if project.status == 'inactive' %}
                 <div role="alert" class="alert alert-warning">

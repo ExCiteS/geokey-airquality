@@ -1,0 +1,15 @@
+<ol class="breadcrumb">
+    {% if request.resolver_match.url_name != 'index' %}
+        <li>
+            <a href="{% url 'geokey_airquality:index' %}">Home</a>
+        </li>
+    {% endif %}
+
+    {% if request.resolver_match.url_name == 'project' %}
+        <li class="active">Project overview</li>
+    {% endif %}
+
+    {% if request.resolver_match.url_name == 'add' %}
+        <li class="active">Add new project</li>
+    {% endif %}
+</ol>
