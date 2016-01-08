@@ -94,6 +94,8 @@ $(document).ready(function() {
 
     // When user changes category...
     categories.find('select.category').each(function() {
+        var i;
+
         $(this).on('change', function() {
             // Clear and hide the structure of fields
             var fields = $(this).closest('.panel').find('.fields');
@@ -106,7 +108,7 @@ $(document).ready(function() {
             // Get the actual category
             var category;
 
-            for (var i = 0; i < project.categories.length; i++) {
+            for (i = 0; i < project.categories.length; i++) {
                 if ($(this).val() == project.categories[i].id) {
                     category = project.categories[i];
                 }
@@ -122,7 +124,7 @@ $(document).ready(function() {
                 // Make options for select field of category's fields
                 var options = [];
 
-                for (var i = 0; i < category.fields.length; i++) {
+                for (i = 0; i < category.fields.length; i++) {
                     options.push('<option value="' + category.fields[i].id + '">' + category.fields[i].name + '</option>');
                 }
 
