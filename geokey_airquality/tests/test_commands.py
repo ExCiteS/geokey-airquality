@@ -43,7 +43,7 @@ class CheckMeasurementsTest(TestCase):
             creator=user_1,
             location=location_1,
             barcode='102701',
-            started=timezone.now() - timedelta(27)
+            started=timezone.now() - timedelta(26)
         )
         AirQualityMeasurementFactory.create(
             creator=user_1,
@@ -54,8 +54,14 @@ class CheckMeasurementsTest(TestCase):
         AirQualityMeasurementFactory.create(
             creator=user_1,
             location=location_1,
+            barcode='102801',
+            started=timezone.now() - timedelta(29)  # expiring in 2 days
+        )
+        AirQualityMeasurementFactory.create(
+            creator=user_1,
+            location=location_1,
             barcode='102901',
-            started=timezone.now() - timedelta(29)  # already expired
+            started=timezone.now() - timedelta(31)  # already expired
         )
         AirQualityMeasurementFactory.create(
             creator=user_1,
@@ -66,14 +72,20 @@ class CheckMeasurementsTest(TestCase):
         AirQualityMeasurementFactory.create(
             creator=user_1,
             location=location_2,
+            barcode='102802',
+            started=timezone.now() - timedelta(30)  # expiring in 1 day
+        )
+        AirQualityMeasurementFactory.create(
+            creator=user_1,
+            location=location_2,
             barcode='102902',
-            started=timezone.now() - timedelta(29)  # already expired
+            started=timezone.now() - timedelta(31)  # already expired
         )
         AirQualityMeasurementFactory.create(
             creator=user_1,
             location=location_2,
             barcode='103002',
-            started=timezone.now() - timedelta(30)  # already expired
+            started=timezone.now() - timedelta(32)  # already expired
         )
         AirQualityMeasurementFactory.create(
             creator=user_2,

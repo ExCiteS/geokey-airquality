@@ -42,7 +42,7 @@ class Command(NoArgsCommand):
                 started__gte=some_time_ago - timedelta(1)  # on that day
             )
             already_expired = measurements.filter(
-                started__lt=some_time_ago - timedelta(1)  # before that day
+                started__lt=some_time_ago - timedelta(3)  # more than 30 days
             )
 
             if len(due_to_expire) > 0 or len(already_expired) > 0:
