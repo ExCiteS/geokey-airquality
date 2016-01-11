@@ -18,6 +18,8 @@
 
                 <div class="form-group">
                     <label for="project" class="control-label">Project</label>
+                    <p class="help-block">Parentheses indicate a total number of categories of each project.</p>
+
                     <select class="form-control" id="project" name="project" required>
                         <option value="">Please select a project</option>
                         {% for project in projects %}
@@ -32,6 +34,7 @@
 
                 <div id="categories" class="hidden">
                     <label class="control-label">Categories</label>
+                    <p class="help-block">Parentheses indicate a total number of fields of each category.</p>
 
                     {% for type_key, type_value in category_types.items %}
                         <div class="panel panel-default">

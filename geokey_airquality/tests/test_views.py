@@ -111,7 +111,9 @@ class AQIndexViewTest(TestCase):
                 'PLATFORM_NAME': get_current_site(self.request).name,
                 'GEOKEY_VERSION': version.get_version(),
                 'user': self.request.user,
-                'projects': [self.project]
+                'projects': [self.project],
+                'total_locations': 0,
+                'total_measurements': 0
             }
         )
         self.assertEqual(response.status_code, 200)
