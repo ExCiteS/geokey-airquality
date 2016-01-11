@@ -8,6 +8,24 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12">
+            <h3 class="header">Statistics</h3>
+
+            <div id="stats" class="row">
+                <div class="col-sm-6">
+                    <span class="number">{{ total_locations }}</span>
+                    <p>location{{ total_locations|pluralize }} added</p>
+                </div>
+
+                <div class="col-sm-6">
+                    <span class="number">{{ total_measurements }}</span>
+                    <p>active measurement{{ total_measurements|pluralize }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
             <h3 class="header">
                 <span>Manage projects</span>
 

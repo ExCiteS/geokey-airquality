@@ -70,6 +70,8 @@ class AQIndexView(LoginRequiredMixin, SuperuserMixin, TemplateView):
 
         return super(AQIndexView, self).get_context_data(
             projects=projects,
+            total_locations=AirQualityLocation.objects.count(),
+            total_measurements=AirQualityMeasurement.objects.count(),
             *args,
             **kwargs
         )
