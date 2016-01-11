@@ -1236,12 +1236,75 @@ class AQLocationsSingleAPIViewTest(TestCase):
         self.location = AirQualityLocationFactory.create(creator=self.creator)
 
         self.url = '/api/airquality/locations/%s/' % self.location.id
+        self.data = {
+            'type': 'Feature',
+            'geometry': {
+                'type': 'Point',
+                'coordinates': [-0.124, 55.171]
+            },
+            'name': 'Updated Test Location',
+            'properties': {
+                'height': 11.2,
+                'distance': None,
+                'characteristics': 'Beautiful location'
+            }
+        }
+
         self.factory = APIRequestFactory()
+        self.request_patch = self.factory.patch(
+            self.url,
+            json.dumps(self.data),
+            content_type='application/json'
+        )
         self.request_delete = self.factory.delete(
             self.url,
             content_type='application/json'
         )
         self.view = views.AQLocationsSingleAPIView.as_view()
+
+    def test_patch_with_anonymous(self):
+
+        force_authenticate(self.request_patch, user=self.anonym)
+        response = self.view(
+            self.request_patch,
+            location_id=self.location.id
+        ).render()
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_patch_with_user(self):
+
+        force_authenticate(self.request_patch, user=self.user)
+        response = self.view(
+            self.request_patch,
+            location_id=self.location.id
+        ).render()
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_patch_with_creator(self):
+
+        force_authenticate(self.request_patch, user=self.creator)
+        response = self.view(
+            self.request_patch,
+            location_id=self.location.id
+        ).render()
+
+        reference = AirQualityLocation.objects.get(pk=self.location.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(reference.name, self.data.get('name'))
+        self.assertEqual(reference.properties, self.data.get('properties'))
+
+    def test_patch_when_no_location(self):
+
+        AirQualityLocation.objects.get(pk=self.location.id).delete()
+        force_authenticate(self.request_patch, user=self.creator)
+        response = self.view(
+            self.request_patch,
+            location_id=self.location.id
+        ).render()
+
+        self.assertEqual(response.status_code, 404)
 
     def test_delete_with_anonymous(self):
 
@@ -1654,6 +1717,27 @@ class AQMeasurementsSingleAPIViewTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
+    def test_patch_when_changing_barcode(self):
+
+        self.data['barcode'] = 451274
+        self.request_patch = self.factory.patch(
+            self.url,
+            json.dumps(self.data),
+            content_type='application/json'
+        )
+        force_authenticate(self.request_patch, user=self.creator)
+        response = self.view(
+            self.request_patch,
+            location_id=self.location_1.id,
+            measurement_id=self.measurement_1.id
+        ).render()
+
+        reference = AirQualityMeasurement.objects.get(
+            pk=self.measurement_1.id
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(reference.barcode, str(self.data['barcode']))
+
     def test_patch_when_submitting_and_no_project(self):
 
         self.data['project'] = 183
@@ -1707,7 +1791,7 @@ class AQMeasurementsSingleAPIViewTest(TestCase):
     def test_patch_when_no_location(self):
 
         AirQualityLocation.objects.get(pk=self.location_1.id).delete()
-        force_authenticate(self.request_delete, user=self.creator)
+        force_authenticate(self.request_patch, user=self.creator)
         response = self.view(
             self.request_patch,
             location_id=self.location_1.id,
@@ -1719,7 +1803,7 @@ class AQMeasurementsSingleAPIViewTest(TestCase):
     def test_patch_when_no_measurement(self):
 
         AirQualityMeasurement.objects.get(pk=self.measurement_1.id).delete()
-        force_authenticate(self.request_delete, user=self.creator)
+        force_authenticate(self.request_patch, user=self.creator)
         response = self.view(
             self.request_patch,
             location_id=self.location_1.id,

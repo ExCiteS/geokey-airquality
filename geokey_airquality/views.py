@@ -733,6 +733,48 @@ class AQLocationsSingleAPIView(APIView):
     API endpoint for a single location.
     """
 
+    def patch(self, request, location_id):
+        """
+        Updates a single location created by the user.
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the request.
+        location_id : int
+            Identifies the location in the database.
+
+        Returns
+        -------
+        rest_framework.response.Response
+            Contains the serialised location or an error message.
+        """
+
+        user = request.user
+        data = request.data
+
+        try:
+            location = AirQualityLocation.objects.get(pk=location_id)
+        except AirQualityLocation.DoesNotExist:
+            return Response(
+                {'error': 'Location not found.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        if user != location.creator:
+            return Response(
+                {'error': 'You have no rights to edit this location.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        serializer = LocationSerializer(
+            location, data=data, context={'user': user, 'data': data}
+        )
+
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
     def delete(self, request, location_id):
         """
         Deletes a single location created by the user.

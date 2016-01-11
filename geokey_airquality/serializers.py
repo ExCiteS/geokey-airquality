@@ -125,6 +125,30 @@ class LocationSerializer(BaseSerializer):
 
         return self.instance
 
+    def update(self, instance, validated_data):
+        """
+        Updates an existing location and returns the instance.
+
+        Parameter
+        ---------
+        instance : geokey_airquality.models.AirQualityLocation
+            The instance to be updated.
+        validated_data : dict
+            Data after validation.
+
+        Returns
+        -------
+        geokey_airquality.models.AirQualityLocation
+            The instance updated.
+        """
+
+        instance.name = validated_data.get('name')
+        instance.geometry = validated_data.get('geometry')
+        instance.properties = validated_data.get('properties')
+        instance.save()
+
+        return instance
+
     def to_representation(self, object):
         """
         Returns the native representation of a location.
@@ -290,6 +314,7 @@ class MeasurementSerializer(BaseSerializer):
 
             instance.finished = finished
 
+        instance.barcode = validated_data.get('barcode')
         instance.properties = validated_data.get('properties')
         instance.save()
 

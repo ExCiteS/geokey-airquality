@@ -216,23 +216,63 @@ Response:
 
 .. code-block:: console
 
-    [
-        {
-            "id": 117,
-            "type": "Feature",
-            "geometry": {
-                // GeoJSON point
-            },
-            "name": "My new location",
-            "created": "2015-09-22T07:22:08.147Z",
-            "properties": {
-                "height": 4.2,
-                "distance": 7,
-                "characteristics": null
-            },
-            "measurements": []
+    {
+        "id": 117,
+        "type": "Feature",
+        "geometry": {
+            // GeoJSON point
+        },
+        "name": "My new location",
+        "created": "2015-09-22T07:22:08.147Z",
+        "properties": {
+            "height": 4.2,
+            "distance": 7,
+            "characteristics": null
+        },
+        "measurements": []
+    }
+
+**Update your location:**
+
+.. code-block:: console
+
+    PATCH /api/airquality/locations/:location_id/
+
+Request body:
+
+.. code-block:: console
+
+    {
+        "type": "Feature",
+        "geometry": {
+            // GeoJSON point
+        },
+        "name": "My updated location",
+        "properties": {
+            "height": 4.2,
+            "distance": 12
         }
-    ]
+    }
+
+Response:
+
+.. code-block:: console
+
+    {
+        "id": 117,
+        "type": "Feature",
+        "geometry": {
+            // GeoJSON point
+        },
+        "name": "My updated location",
+        "created": "2015-09-22T07:22:08.147Z",
+        "properties": {
+            "height": 4.2,
+            "distance": 12,
+            "characteristics": null
+        },
+        "measurements": []
+    }
 
 **Delete your location:**
 
@@ -251,7 +291,7 @@ Request body:
 .. code-block:: console
 
     {
-        "barcode": "145023"
+        "barcode": 145023
         "called": "2015-12-22T07:08:08.121Z",
         "started": "2015-12-23T09:12:02.247Z"
     }
@@ -282,6 +322,7 @@ Request body:
 .. code-block:: console
 
     {
+        "barcode": 145023,
         "called": "2015-12-23T09:22:01.147Z",
         "finished": "2015-12-23T09:22:01.147Z",
         "project": "45",
