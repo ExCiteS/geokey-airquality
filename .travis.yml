@@ -10,7 +10,7 @@ addons:
   postgresql: '9.4'
 
 env:
-  - GEOKEY=0.8
+  - GEOKEY='>=0.8,<0.9'
 
 virtualenv:
   system_site_packages: true
@@ -27,7 +27,7 @@ before_script:
   - psql template1 postgres -c 'create extension hstore;'
   - psql -c 'create database geokey;' -U postgres
   - psql -U postgres -d geokey -c 'create extension postgis;'
-  - pip install geokey==$GEOKEY
+  - pip install geokey$GEOKEY
   - pip install -r travis/requirements.txt
   - pip install -e .
   - python travis/manage.py migrate
