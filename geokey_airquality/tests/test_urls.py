@@ -4,7 +4,24 @@ from django.core.urlresolvers import reverse, resolve
 from geokey_airquality import views
 
 
-class UrlsTests(TestCase):
+class DataPatternsTests(TestCase):
+
+    def test_export(self):
+
+        reversed_url = reverse(
+            'geokey_airquality:export',
+            kwargs={'file': 'measurements'}
+        )
+        self.assertEqual(reversed_url, '/admin/airquality/export/measurements')
+
+        resolved_url = resolve('/admin/airquality/export/measurements')
+        view = views.AQExportView
+
+        self.assertEqual(resolved_url.func.func_name, view.__name__)
+        self.assertEqual(resolved_url.kwargs['file'], 'measurements')
+
+
+class UrlPatternsTests(TestCase):
 
     def test_index(self):
 

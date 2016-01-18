@@ -6,9 +6,11 @@ import StringIO
 from django.conf import settings
 from django.core import mail
 from django.core.exceptions import PermissionDenied
-from django.views.generic import TemplateView
+from django.http import HttpResponse
+from django.views.generic import View, TemplateView
 from django.template.defaultfilters import date as filter_date
 from django.shortcuts import redirect
+from django.utils import timezone, dateformat
 from django.contrib import messages
 
 from rest_framework import status
@@ -75,6 +77,97 @@ class AQIndexView(LoginRequiredMixin, SuperuserMixin, TemplateView):
             *args,
             **kwargs
         )
+
+
+class AQExportView(View):
+
+    """
+    Exports all measurements.
+    """
+
+    def get(self, request, file, *args, **kwargs):
+        """
+        Exports all measurements to a CSV file.
+
+        Parameters
+        ----------
+        request : django.http.HttpRequest
+            Represents the request.
+        file : str
+            Identifies the file name.
+
+        Returns
+        -------
+        django.http.HttpResponse
+            CSV file.
+        """
+
+        if not request.user.is_superuser:
+            return HttpResponse(status=403)
+
+        out = HttpResponse(content_type='text/csv')
+        out['Content-Disposition'] = 'attachment; filename="%s - %s.csv"' % (
+            'Measurements',
+            dateformat.format(timezone.now(), 'l, jS \\o\\f F, Y')
+        )
+
+        fieldnames = [
+            'Barcode',
+            'Location',
+            'Site characteristics',
+            'Height from ground (m)',
+            'Distance from the road (m)',
+            'Additional details',
+            'Date out',
+            'Date in',
+            'Time out',
+            'Time in',
+            'Exposure time (min)',
+            'Exposure time (hr)',
+            'Added by'
+        ]
+
+        writer = csv.DictWriter(out, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for measurement in AirQualityMeasurement.objects.all():
+            location = measurement.location
+
+            if measurement.finished:
+                exposure = measurement.finished - measurement.started
+                exposure_min = int(exposure.total_seconds() / 60)
+                exposure_hr = int(exposure.total_seconds() / 3600)
+                date_in = filter_date(measurement.finished, 'd/m/Y')
+                time_in = filter_date(measurement.finished, 'H:i')
+            else:
+                exposure_min = None
+                exposure_hr = None
+                date_in = None
+                time_in = None
+
+            row = {
+                'Barcode': measurement.barcode,
+                'Location': location.name,
+                'Site characteristics': location.properties.get(
+                    'characteristics'),
+                'Height from ground (m)': location.properties.get(
+                    'height'),
+                'Distance from the road (m)': location.properties.get(
+                    'distance'),
+                'Additional details': measurement.properties.get(
+                    'additional_details'),
+                'Date out': filter_date(measurement.started, 'd/m/Y'),
+                'Date in': date_in,
+                'Time out': filter_date(measurement.started, 'H:i'),
+                'Time in': time_in,
+                'Exposure time (min)': exposure_min,
+                'Exposure time (hr)': exposure_hr,
+                'Added by': measurement.creator
+            }
+
+            writer.writerow(row)
+
+        return out
 
 
 class AQAddView(LoginRequiredMixin, SuperuserMixin, TemplateView):

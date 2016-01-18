@@ -120,6 +120,40 @@ class AQIndexViewTest(TestCase):
         self.assertEqual(response.content.decode('utf-8'), rendered)
 
 
+class AQExportViewTest(TestCase):
+
+    def setUp(self):
+
+        self.superuser = UserFactory.create(**{'is_superuser': True})
+        self.user = UserFactory.create(**{'is_superuser': False})
+        self.anonym = AnonymousUser()
+
+        self.view = views.AQExportView.as_view()
+        self.request = HttpRequest()
+        self.request.method = 'GET'
+
+    def test_get_with_anonymous(self):
+
+        self.request.user = self.anonym
+        response = self.view(self.request, file='measurements')
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_with_user(self):
+
+        self.request.user = self.user
+        response = self.view(self.request, file='measurements')
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_with_superuser(self):
+
+        self.request.user = self.superuser
+        response = self.view(self.request, file='measurements')
+
+        self.assertEqual(response.status_code, 200)
+
+
 class AQAddViewTest(TestCase):
 
     def setUp(self):

@@ -1,10 +1,25 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import patterns, include, url
+
+from rest_framework.urlpatterns import format_suffix_patterns
 
 from geokey_airquality import views
 
 
+exportpatterns = patterns(
+    '',
+
+    url(r'^admin/airquality/export/(?P<file>[\w-]+)$',
+        views.AQExportView.as_view(),
+        name='export'),
+)
+
+datapatterns = format_suffix_patterns(exportpatterns, allowed=['csv'])
+
 urlpatterns = patterns(
     '',
+
+    url(
+        r'^', include(datapatterns)),
 
     # ###########################
     # ADMIN

@@ -8,7 +8,14 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <h3 class="header">Statistics</h3>
+            <h3 class="header">
+                <span>Statistics</span>
+
+                <a role="button" href="{% url 'geokey_airquality:export' 'measurements' %}.csv" class="btn btn-sm btn-primary pull-right {% if total_measurements == 0 %}disabled{% endif %}">
+                    <span class="glyphicon glyphicon-export"></span>
+                    <span>Export CSV</span>
+                </a>
+            </h3>
 
             <div id="stats" class="row">
                 <div class="col-sm-6">
