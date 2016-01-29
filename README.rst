@@ -9,7 +9,7 @@
 geokey-airquality
 =================
 
-`GeoKey <https://github.com/ExCiteS/geokey>`_ (v0.8+ only) extension for `Air Quality <https://github.com/ExCiteS/airquality>`_ functionality.
+`GeoKey <https://github.com/ExCiteS/geokey>`_ (v0.9+ only) extension for `Air Quality <https://github.com/ExCiteS/airquality>`_ functionality.
 
 Install
 -------
@@ -22,7 +22,7 @@ Install the extension:
 
 Add the package to installed apps:
 
-.. code-block:: console
+.. code-block:: python
 
     INSTALLED_APPS += (
         ...
@@ -76,8 +76,8 @@ Copy static files:
 
     python manage.py collectstatic
 
-Develop And Test
-----------------
+Develop & Test
+--------------
 
 Clone the repository:
 
@@ -94,7 +94,7 @@ Install the extension for development:
 
 Add the package to installed apps:
 
-.. code-block:: console
+.. code-block:: python
 
     INSTALLED_APPS += (
         ...
