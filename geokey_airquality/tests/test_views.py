@@ -285,6 +285,10 @@ class AQAddViewTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertIn('/admin/account/login/', response['location'])
+        self.assertEqual(
+            Project.objects.get(pk=self.project.id).islocked,
+            False
+        )
 
     def test_post_with_user(self):
 
@@ -307,6 +311,10 @@ class AQAddViewTest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode('utf-8'), rendered)
+        self.assertEqual(
+            Project.objects.get(pk=self.project.id).islocked,
+            False
+        )
 
     def test_post_when_project_marked_as_inactive(self):
 
@@ -333,6 +341,10 @@ class AQAddViewTest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode('utf-8'), rendered)
+        self.assertEqual(
+            Project.objects.get(pk=self.project.id).islocked,
+            False
+        )
 
     def test_post_when_project_marked_as_deleted(self):
 

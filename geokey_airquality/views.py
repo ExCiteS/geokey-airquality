@@ -298,6 +298,9 @@ class AQAddView(LoginRequiredMixin, SuperuserMixin, TemplateView):
                     aq_project.delete()
                     return self.render_to_response(context)
 
+                project.islocked = True
+                project.save()
+
                 messages.success(
                     self.request,
                     'The project has been added.'
