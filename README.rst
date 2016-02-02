@@ -9,10 +9,15 @@
 geokey-airquality
 =================
 
-`GeoKey <https://github.com/ExCiteS/geokey>`_ (v0.9+ only) extension for `Air Quality <https://github.com/ExCiteS/airquality>`_ functionality.
+`GeoKey <https://github.com/ExCiteS/geokey>`_ extension for `Air Quality <https://github.com/ExCiteS/airquality>`_ functionality.
 
 Install
 -------
+
+geokey-airquality requires:
+
+- Python version 2.7
+- GeoKey version 0.9 or greater
 
 Install the extension:
 
