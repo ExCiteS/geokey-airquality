@@ -1,23 +1,19 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 
 from rest_framework.urlpatterns import format_suffix_patterns
 
 from geokey_airquality import views
 
 
-exportpatterns = patterns(
-    '',
-
+exportpatterns = [
     url(r'^admin/airquality/export/(?P<file>[\w-]+)$',
         views.AQExportView.as_view(),
         name='export'),
-)
+]
 
 datapatterns = format_suffix_patterns(exportpatterns, allowed=['csv'])
 
-urlpatterns = patterns(
-    '',
-
+urlpatterns = [
     url(
         r'^', include(datapatterns)),
 
@@ -82,4 +78,4 @@ urlpatterns = patterns(
         r'projects/$',
         views.AQProjectsAPIView.as_view(),
         name='api_projects'),
-)
+]
