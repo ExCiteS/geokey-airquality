@@ -17,6 +17,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from geokey import version
+from geokey.core.tests.helpers import render_helpers
 from geokey.users.tests.model_factories import UserFactory
 from geokey.projects.models import Project
 from geokey.projects.tests.model_factories import ProjectFactory
@@ -98,7 +99,8 @@ class AQIndexViewTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
     def test_get_with_superuser(self):
 
@@ -117,7 +119,8 @@ class AQIndexViewTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
 
 class AQExportViewTest(TestCase):
@@ -208,7 +211,8 @@ class AQAddViewTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
     def test_get_with_superuser(self):
 
@@ -228,7 +232,8 @@ class AQAddViewTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
     def test_get_when_project_marked_as_inactive(self):
 
@@ -250,7 +255,8 @@ class AQAddViewTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
     def test_get_when_project_marked_as_deleted(self):
 
@@ -272,7 +278,8 @@ class AQAddViewTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
     def test_post_with_anonymous(self):
 
@@ -310,7 +317,8 @@ class AQAddViewTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
         self.assertEqual(
             Project.objects.get(pk=self.project.id).islocked,
             False
@@ -340,7 +348,8 @@ class AQAddViewTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
         self.assertEqual(
             Project.objects.get(pk=self.project.id).islocked,
             False
@@ -370,7 +379,8 @@ class AQAddViewTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
 
 class AQProjectViewTest(TestCase):
@@ -434,7 +444,8 @@ class AQProjectViewTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
     def test_get_with_superuser(self):
 
@@ -458,7 +469,8 @@ class AQProjectViewTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
     def test_get_when_project_marked_as_inactive(self):
 
@@ -482,7 +494,8 @@ class AQProjectViewTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
     def test_get_when_project_marked_as_deleted(self):
 
@@ -506,7 +519,8 @@ class AQProjectViewTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
     def test_get_when_no_project(self):
 
@@ -529,7 +543,8 @@ class AQProjectViewTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
     def test_get_when_no_aq_project(self):
 
@@ -552,7 +567,8 @@ class AQProjectViewTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
     def test_post_with_anonymous(self):
 
@@ -592,7 +608,8 @@ class AQProjectViewTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
     def test_post_when_project_marked_as_inactive(self):
 
@@ -619,7 +636,8 @@ class AQProjectViewTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
     def test_post_when_project_marked_as_deleted(self):
 
@@ -646,7 +664,8 @@ class AQProjectViewTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
     def test_post_when_no_project(self):
 
@@ -672,7 +691,8 @@ class AQProjectViewTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
     def test_post_when_no_aq_project(self):
 
@@ -698,7 +718,8 @@ class AQProjectViewTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
 
 class AQRemoveViewTest(TestCase):
@@ -776,7 +797,8 @@ class AQRemoveViewTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
     def test_get_with_superuser(self):
 
