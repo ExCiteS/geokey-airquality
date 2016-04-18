@@ -17,7 +17,7 @@ Install
 geokey-airquality requires:
 
 - Python version 2.7
-- GeoKey version 0.9 or greater
+- GeoKey version 0.9 or 0.10
 
 Install the extension:
 
