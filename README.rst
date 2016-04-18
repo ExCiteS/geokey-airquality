@@ -23,11 +23,18 @@ geokey-airquality requires:
 - Python version 2.7
 - GeoKey version 0.9 or 0.10
 
-Install the extension:
+Install the geokey-airquality from PyPI:
 
 .. code-block:: console
 
-    pip install git+https://github.com/ExCiteS/geokey-airquality.git
+    pip install geokey-airquality
+
+Or from cloned repository:
+
+.. code-block:: console
+
+    cd geokey-airquality
+    pip install -e .
 
 Add the package to installed apps:
 
@@ -67,11 +74,11 @@ You're now ready to go!
 Update
 ------
 
-Update the extension:
+Update the geokey-airquality from PyPI:
 
 .. code-block:: console
 
-    pip install -U git+https://github.com/ExCiteS/geokey-airquality.git
+    pip install -U geokey-airquality
 
 Migrate the models into the database:
 
@@ -98,7 +105,7 @@ Install the extension for development:
 
 .. code-block:: console
 
-    cd geokey-communitymaps
+    cd geokey-airquality
     pip install -e .
 
 Add the package to installed apps:
