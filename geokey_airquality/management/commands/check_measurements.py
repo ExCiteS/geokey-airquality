@@ -31,11 +31,11 @@ class Command(NoArgsCommand):
         some_time_ago = some_time_ago + timedelta(1)  # checking a day after
 
         messages = []
-
         for user in User.objects.exclude(display_name='AnonymousUser'):
             measurements = AirQualityMeasurement.objects.filter(
                 creator=user,
-                started__lt=some_time_ago
+                started__lt=some_time_ago,
+                finished__isnull=True
             )
 
             due_to_expire = measurements.filter(
