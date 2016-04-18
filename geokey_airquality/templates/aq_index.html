@@ -46,19 +46,19 @@
 
             <ul class="list-unstyled overview-list">
                 {% for project in projects %}
-                <li>
-                    <h3><a href="{% url 'geokey_airquality:project' project.id %}">{{ project.project.name }}</a></h3>
-                    <p>{% if project.status == 'inactive' %}<a href="{% url 'geokey_airquality:project' project.id %}" class="label label-default" data-loader="true">Inactive</a>{% endif %}</p>
-                    <p class="meta">Added by {{ project.creator.display_name }} {{ project.created|timesince }} ago</p>
-                </li>
+                    <li>
+                        <h3><a href="{% url 'geokey_airquality:project' project.id %}">{{ project.project.name }}</a></h3>
+                        <p>{% if project.status == 'inactive' %}<a href="{% url 'geokey_airquality:project' project.id %}" class="label label-default" data-loader="true">Inactive</a>{% endif %}</p>
+                        <p class="meta">Added by {{ project.creator.display_name }} {{ project.created|timesince }} ago</p>
+                    </li>
                 {% empty %}
-                <li>
-                    <div class="well empty-list">
-                        <p class="lead">We couldn't find any projects you are eligible to manage.</p>
-                        <p>You can add a new project if you want it to be used with the Air Quality app.</p>
-                        <a href="{% url 'geokey_airquality:add' %}" class="btn btn-lg btn-success">Add a new project</a>
-                    </div>
-                </li>
+                    <li>
+                        <div class="well empty-list">
+                            <p class="lead">We couldn't find any projects you are eligible to manage.</p>
+                            <p>You can add a new project if you want it to be used with the Air Quality app.</p>
+                            <a href="{% url 'geokey_airquality:add' %}" class="btn btn-lg btn-success">Add a new project</a>
+                        </div>
+                    </li>
                 {% endfor %}
             </ul>
         </div>
