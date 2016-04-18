@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import migrations, models
-import django_pgjson.fields
-import django.contrib.gis.db.models.fields
-import django.utils.timezone
 from django.conf import settings
+from django.db import migrations, models
+
+import django.utils.timezone
+import django.contrib.gis.db.models.fields
+
+import django_pgjson.fields
 import model_utils.fields
 
 
