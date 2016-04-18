@@ -1,3 +1,7 @@
+.. image:: https://img.shields.io/pypi/v/geokey-airquality.svg
+    :alt: PyPI Package
+    :target: https://pypi.python.org/pypi/geokey-airquality
+
 .. image:: https://img.shields.io/travis/ExCiteS/geokey-airquality/master.svg
     :alt: Travis CI Build Status
     :target: https://travis-ci.org/ExCiteS/geokey-airquality
