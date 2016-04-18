@@ -36,7 +36,7 @@ class Command(NoArgsCommand):
                 creator=user,
                 started__lt=some_time_ago,
                 finished__isnull=True
-            )
+            ).select_related('location')
 
             due_to_expire = measurements.filter(
                 started__gte=some_time_ago - timedelta(1)  # on that day
