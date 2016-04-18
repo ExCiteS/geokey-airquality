@@ -1,3 +1,5 @@
+"""GeoKey URL patterns."""
+
 from django.conf.urls import include, url
 
 

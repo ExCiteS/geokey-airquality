@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+"""GeoKey extension for Air Quality functionality."""
+
 from os.path import join
 from setuptools import setup, find_packages
 

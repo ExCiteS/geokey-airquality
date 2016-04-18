@@ -1,3 +1,8 @@
+"""`check_measurements` command."""
+
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from datetime import datetime, timedelta
 from pytz import utc
 
@@ -14,13 +19,15 @@ from geokey_airquality.models import AirQualityMeasurement
 
 
 class Command(NoArgsCommand):
+    """A command to check for expiring/expired measurements."""
 
     def check_measurements(self):
         """
-        Checks all measurements that are due to expire or already expired, and
-        informs creators that those measurements should be collected.
-        """
+        Check all measurements that are due to expire or already expired.
 
+        Inform creators of those measurements by sending an email with all the
+        required information.
+        """
         some_time_ago = timezone.now() - timedelta(28)
         some_time_ago = datetime(
             some_time_ago.year,
@@ -69,8 +76,5 @@ class Command(NoArgsCommand):
             connection.close()
 
     def handle(self, *args, **options):
-        """
-        Executes the code below when the command is run.
-        """
-
+        """Execute the code when the command is run."""
         self.check_measurements()

@@ -1,3 +1,5 @@
+"""All URLs for the extension."""
+
 from django.conf.urls import include, url
 
 from rest_framework.urlpatterns import format_suffix_patterns
@@ -18,7 +20,7 @@ urlpatterns = [
         r'^', include(datapatterns)),
 
     # ###########################
-    # ADMIN
+    # ADMIN PAGES
     # ###########################
 
     url(r'^admin/airquality/$',
@@ -35,7 +37,7 @@ urlpatterns = [
         name='remove'),
 
     # ###########################
-    # AJAX
+    # ADMIN AJAX
     # ###########################
 
     url(r'^ajax/airquality/'
@@ -49,7 +51,7 @@ urlpatterns = [
         name='ajax_categories_single'),
 
     # ###########################
-    # API
+    # PUBLIC API
     # ###########################
 
     url(r'^api/airquality/'

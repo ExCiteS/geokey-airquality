@@ -1,3 +1,5 @@
+"""All models for the extension."""
+
 from django.conf import settings
 from django.core import mail
 from django.dispatch import receiver
@@ -17,7 +19,7 @@ from geokey.categories.models import Category, TextField
 
 def email_user(template, subject, receiver, action,
                project_name=None, category_name=None, field_name=None):
-
+    """Email user."""
     message = get_template(
         template
     ).render(Context({
@@ -42,10 +44,7 @@ def email_user(template, subject, receiver, action,
 
 
 class AirQualityProject(StatusModel, TimeStampedModel):
-
-    """
-    Air Quality Project - relation to GeoKey project.
-    """
+    """Store a single Air Quality project."""
 
     STATUS = Choices('active', 'inactive')
 
@@ -110,11 +109,7 @@ def pre_delete_project(sender, instance, **kwargs):
 
 
 class AirQualityCategory(models.Model):
-
-    """
-    Air Quality Category - relation to GeoKey category. Can only be one of the
-    possible types.
-    """
+    """Store a single Air Quality category."""
 
     TYPES = (
         (u'1', u'<40'),
@@ -192,11 +187,7 @@ def pre_delete_category(sender, instance, **kwargs):
 
 
 class AirQualityField(models.Model):
-
-    """
-    Air Quality Field - relation to GeoKey field. Can only be one of the
-    possible types.
-    """
+    """Store a single Air Quality field."""
 
     TYPES = (
         (u'results', u'01. Results'),
@@ -281,11 +272,7 @@ def pre_delete_field(sender, instance, **kwargs):
 
 
 class AirQualityLocation(models.Model):
-
-    """
-    Air Quality Location: holds a single point, to which many measurements can
-    be related, also additional properties.
-    """
+    """Store a single Air Quality location."""
 
     name = models.CharField(max_length=100)
     geometry = gis.GeometryField(geography=True)
@@ -295,11 +282,7 @@ class AirQualityLocation(models.Model):
 
 
 class AirQualityMeasurement(models.Model):
-
-    """
-    Air Quality Measurement: holds information about when the measurement was
-    started, finished, also additional properties.
-    """
+    """Store a single Air Quality measurement."""
 
     location = models.ForeignKey(
         'AirQualityLocation',

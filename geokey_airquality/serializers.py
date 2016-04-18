@@ -1,3 +1,5 @@
+"""All serializers for the extension."""
+
 import json
 
 from django.core.exceptions import ValidationError

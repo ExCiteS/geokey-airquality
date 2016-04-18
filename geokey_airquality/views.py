@@ -1,3 +1,8 @@
+"""All views for the extension."""
+
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 import collections
 import operator
 import csv
@@ -42,36 +47,30 @@ from geokey_airquality.serializers import (
 permission_denied = 'Managing Air Quality is for superusers only.'
 
 
-# ############################################################################
-#
-# Admin Views
-#
-# ############################################################################
+# ###########################
+# ADMIN PAGES
+# ###########################
 
 class AQIndexView(LoginRequiredMixin, SuperuserMixin, TemplateView):
-
-    """
-    Main page displaying a list of all projects added to Air Quality.
-    """
+    """Main index page."""
 
     template_name = 'aq_index.html'
     exception_message = permission_denied
 
     def get_context_data(self, *args, **kwargs):
         """
-        Returns the context to render the view. Overwrites the method by adding
+        GET method for the template.
+
+        Return the context to render the view. Overwrite the method by adding
         all Air Quality projects to the context.
 
         Returns
         -------
         dict
-            context
+            Context.
         """
-
-        projects = AirQualityProject.objects.all()
-
         return super(AQIndexView, self).get_context_data(
-            projects=projects,
+            projects=AirQualityProject.objects.all(),
             total_locations=AirQualityLocation.objects.count(),
             total_measurements=AirQualityMeasurement.objects.count(),
             *args,
@@ -80,14 +79,13 @@ class AQIndexView(LoginRequiredMixin, SuperuserMixin, TemplateView):
 
 
 class AQExportView(View):
-
-    """
-    Exports all measurements.
-    """
+    """A view to export all measurements."""
 
     def get(self, request, file, *args, **kwargs):
         """
-        Exports all measurements to a CSV file.
+        GET method for the view.
+
+        Export all measurements to a CSV file.
 
         Parameters
         ----------
@@ -101,7 +99,6 @@ class AQExportView(View):
         django.http.HttpResponse
             CSV file.
         """
-
         if not request.user.is_superuser:
             return HttpResponse(status=403)
 
@@ -171,27 +168,23 @@ class AQExportView(View):
 
 
 class AQAddView(LoginRequiredMixin, SuperuserMixin, TemplateView):
-
-    """
-    A page for adding a new project to Air Quality.
-    """
+    """Add new Air Quality project page."""
 
     template_name = 'aq_add.html'
     exception_message = permission_denied
 
     def get_context_data(self, *args, **kwargs):
         """
-        Returns the context to render the view. Overwrites the method by adding
+        GET method for the template.
+
+        Return the context to render the view. Overwrite the method by adding
         all GeoKey projects, available category and field types to the context.
 
         Returns
         -------
         dict
-            context
+            Context.
         """
-
-        projects = Project.objects.filter(status='active')
-
         category_types = collections.OrderedDict(
             sorted(dict(AirQualityCategory.TYPES).items())
         )
@@ -203,7 +196,7 @@ class AQAddView(LoginRequiredMixin, SuperuserMixin, TemplateView):
         )
 
         return super(AQAddView, self).get_context_data(
-            projects=projects,
+            projects=Project.objects.filter(status='active'),
             category_types=category_types,
             field_types=field_types,
             *args,
@@ -212,7 +205,7 @@ class AQAddView(LoginRequiredMixin, SuperuserMixin, TemplateView):
 
     def post(self, request):
         """
-        Adds a project.
+        POST method for adding a new Air Quality project.
 
         Parameters
         ----------
@@ -227,7 +220,6 @@ class AQAddView(LoginRequiredMixin, SuperuserMixin, TemplateView):
         django.http.HttpResponse
             Rendered template with an error message.
         """
-
         data = request.POST
         context = self.get_context_data()
 
@@ -314,17 +306,16 @@ class AQAddView(LoginRequiredMixin, SuperuserMixin, TemplateView):
 
 
 class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
-
-    """
-    A page for changing settings of a project, added to Air Quality,
-    """
+    """Air Quality project page."""
 
     template_name = 'aq_project.html'
     exception_message = permission_denied
 
     def get_context_data(self, project_id, *args, **kwargs):
         """
-        Returns the context to render the view. Overwrites the method by adding
+        GET method for the template.
+
+        Return the context to render the view. Overwrite the method by adding
         all Geokey projects, current Air Quality project, available category
         and field types to the context.
 
@@ -336,11 +327,8 @@ class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
         Returns
         -------
         dict
-            context
+            Context.
         """
-
-        projects = Project.objects.filter(status='active')
-
         try:
             project = AirQualityProject.objects.get(pk=project_id)
         except AirQualityProject.DoesNotExist:
@@ -360,7 +348,7 @@ class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
         )
 
         return super(AQProjectView, self).get_context_data(
-            projects=projects,
+            projects=Project.objects.filter(status='active'),
             project=project,
             category_types=category_types,
             field_types=field_types,
@@ -370,7 +358,7 @@ class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
 
     def post(self, request, project_id):
         """
-        Updates a project.
+        POST method for updating Air Quality project.
 
         Parameters
         ----------
@@ -387,7 +375,6 @@ class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
         django.http.HttpResponse
             Rendered template with an error message.
         """
-
         data = request.POST
         context = self.get_context_data(project_id)
 
@@ -500,17 +487,14 @@ class AQProjectView(LoginRequiredMixin, SuperuserMixin, TemplateView):
 
 
 class AQRemoveView(LoginRequiredMixin, SuperuserMixin, TemplateView):
-
-    """
-    A page for removing a project, added to Air Quality,
-    """
+    """Remove Air Quality project page."""
 
     template_name = 'base.html'
     exception_message = permission_denied
 
     def get(self, request, project_id):
         """
-        Removes a project.
+        GET method for removing Air Quality project.
 
         Parameters
         ----------
@@ -527,7 +511,6 @@ class AQRemoveView(LoginRequiredMixin, SuperuserMixin, TemplateView):
         django.http.HttpResponse
             Renders success or error message.
         """
-
         try:
             project = AirQualityProject.objects.get(pk=project_id)
             project.delete()
@@ -538,11 +521,9 @@ class AQRemoveView(LoginRequiredMixin, SuperuserMixin, TemplateView):
         return redirect('geokey_airquality:index')
 
 
-# ############################################################################
-#
-# AJAX API Views
-#
-# ############################################################################
+# ###########################
+# ADMIN AJAX
+# ###########################
 
 class AQProjectsSingleAjaxView(APIView):
     """
@@ -611,11 +592,9 @@ class AQCategoriesSingleAjaxView(APIView):
         return Response(serializer.data)
 
 
-# ############################################################################
-#
-# Public API Views
-#
-# ############################################################################
+# ###########################
+# PUBLIC API
+# ###########################
 
 class AQSheetAPIView(APIView):
 

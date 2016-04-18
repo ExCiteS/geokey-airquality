@@ -48,11 +48,9 @@ from geokey_airquality.tests.model_factories import (
 permission_denied = 'Managing Air Quality is for superusers only.'
 
 
-# ############################################################################
-#
-# Admin Views
-#
-# ############################################################################
+# ###########################
+# ADMIN PAGES
+# ###########################
 
 class AQIndexViewTest(TestCase):
 
@@ -827,11 +825,9 @@ class AQRemoveViewTest(TestCase):
         self.assertIn('/admin/airquality/', response['location'])
 
 
-# ############################################################################
-#
-# AJAX API Views
-#
-# ############################################################################
+# ###########################
+# ADMIN AJAX
+# ###########################
 
 class AQProjectsSingleAjaxViewTest(TestCase):
 
@@ -1062,11 +1058,9 @@ class AQCategoriesSingleAjaxViewTest(TestCase):
         self.assertEqual(response.status_code, 404)
 
 
-# ############################################################################
-#
-# Public API Views
-#
-# ############################################################################
+# ###########################
+# PUBLIC API
+# ###########################
 
 class AQSheetAPIViewTest(TestCase):
 
