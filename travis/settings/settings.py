@@ -30,4 +30,3 @@ MEDIA_ROOT = normpath(join(dirname(dirname(abspath(__file__))), 'assets'))
 MEDIA_URL = '/assets/'
 
 WSGI_APPLICATION = 'settings.wsgi.application'
-ROOT_URLCONF = 'settings.urls'

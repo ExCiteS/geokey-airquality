@@ -29,7 +29,7 @@ from geokey.projects.serializers import ProjectSerializer
 from geokey.categories.models import Category, Field
 from geokey.categories.serializers import CategorySerializer
 from geokey.contributions.serializers import ContributionSerializer
-from geokey.extensions.views import SuperuserMixin
+from geokey.extensions.mixins import SuperuserMixin
 
 from geokey_airquality.models import (
     AirQualityProject,
