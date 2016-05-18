@@ -144,25 +144,25 @@ class AQExportView(View):
 
             row = {
                 'Barcode': measurement.barcode,
-                'Location': location.name.encode('utf-8'),
+                'Location': location.name,
                 'Site characteristics': location.properties.get(
-                    'characteristics').encode('utf-8'),
+                    'characteristics'),
                 'Height from ground (m)': location.properties.get(
                     'height'),
                 'Distance from the road (m)': location.properties.get(
                     'distance'),
                 'Additional details': measurement.properties.get(
-                    'additional_details').encode('utf-8'),
+                    'additional_details'),
                 'Date out': filter_date(measurement.started, 'd/m/Y'),
                 'Date in': date_in,
                 'Time out': filter_date(measurement.started, 'H:i'),
                 'Time in': time_in,
                 'Exposure time (min)': exposure_min,
                 'Exposure time (hr)': exposure_hr,
-                'Added by': measurement.creator.display_name.encode('utf-8')
+                'Added by': measurement.creator.display_name
             }
 
-            writer.writerow(row)
+            writer.writerow({key: value.encode('utf-8') if value else None for key, value in row.iteritems()})
 
         return out
 
@@ -653,15 +653,15 @@ class AQSheetAPIView(APIView):
 
             row = {
                 'Barcode': measurement.barcode,
-                'Location': location.name.encode('utf-8'),
+                'Location': location.name,
                 'Site characteristics': location.properties.get(
-                    'characteristics').encode('utf-8'),
+                    'characteristics'),
                 'Height from ground (m)': location.properties.get(
                     'height'),
                 'Distance from the road (m)': location.properties.get(
                     'distance'),
                 'Additional details': measurement.properties.get(
-                    'additional_details').encode('utf-8'),
+                    'additional_details'),
                 'Date out': filter_date(measurement.started, 'd/m/Y'),
                 'Date in': filter_date(measurement.finished, 'd/m/Y'),
                 'Time out': filter_date(measurement.started, 'H:i'),
@@ -670,7 +670,7 @@ class AQSheetAPIView(APIView):
                 'Exposure time (hr)': int(exposure.total_seconds() / 3600)
             }
 
-            writer.writerow(row)
+            writer.writerow({key: value.encode('utf-8') if value else None for key, value in row.iteritems()})
 
         message = mail.EmailMessage(
             'Air Quality: Sheet of finished measurements',
