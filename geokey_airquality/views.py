@@ -159,7 +159,7 @@ class AQExportView(View):
                 'Time in': time_in,
                 'Exposure time (min)': exposure_min,
                 'Exposure time (hr)': exposure_hr,
-                'Added by': measurement.creator.display_name..encode('utf-8')
+                'Added by': measurement.creator.display_name.encode('utf-8')
             }
 
             writer.writerow(row)
@@ -653,15 +653,15 @@ class AQSheetAPIView(APIView):
 
             row = {
                 'Barcode': measurement.barcode,
-                'Location': location.name,
+                'Location': location.name.encode('utf-8'),
                 'Site characteristics': location.properties.get(
-                    'characteristics'),
+                    'characteristics').encode('utf-8'),
                 'Height from ground (m)': location.properties.get(
                     'height'),
                 'Distance from the road (m)': location.properties.get(
                     'distance'),
                 'Additional details': measurement.properties.get(
-                    'additional_details'),
+                    'additional_details').encode('utf-8'),
                 'Date out': filter_date(measurement.started, 'd/m/Y'),
                 'Date in': filter_date(measurement.finished, 'd/m/Y'),
                 'Time out': filter_date(measurement.started, 'H:i'),
