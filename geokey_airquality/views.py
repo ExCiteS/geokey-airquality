@@ -162,7 +162,7 @@ class AQExportView(View):
                 'Added by': measurement.creator.display_name
             }
 
-            writer.writerow({key: value.encode('utf-8') if value else None for key, value in row.iteritems()})
+            writer.writerow({key: str(value).encode('utf-8') if value else None for key, value in row.iteritems()})
 
         return out
 
@@ -670,7 +670,7 @@ class AQSheetAPIView(APIView):
                 'Exposure time (hr)': int(exposure.total_seconds() / 3600)
             }
 
-            writer.writerow({key: value.encode('utf-8') if value else None for key, value in row.iteritems()})
+            writer.writerow({key: str(value).encode('utf-8') if value else None for key, value in row.iteritems()})
 
         message = mail.EmailMessage(
             'Air Quality: Sheet of finished measurements',
