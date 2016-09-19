@@ -199,7 +199,8 @@ class AirQualityField(models.Model):
         (u'distance_from_road', u'07. Distance from the road'),
         (u'height', u'08. Height from ground'),
         (u'site_characteristics', u'09. Site characteristics'),
-        (u'additional_details', u'10. Additional details')
+        (u'additional_details', u'10. Additional details'),
+        (u'made_by_students', u'11. Diffusion tube made by students')
     )
     type = models.CharField(max_length=50, null=False, choices=TYPES)
 

@@ -24,7 +24,9 @@ from geokey.projects.tests.model_factories import ProjectFactory
 from geokey.categories.models import Category
 from geokey.categories.tests.model_factories import (
     CategoryFactory,
-    TextFieldFactory
+    TextFieldFactory,
+    LookupFieldFactory,
+    LookupValueFactory
 )
 from geokey.contributions.models import Location, Observation
 
@@ -1491,6 +1493,16 @@ class AQMeasurementsAPIViewTest(TestCase):
         self.field_8 = TextFieldFactory.create(category=self.category)
         self.field_9 = TextFieldFactory.create(category=self.category)
         self.field_10 = TextFieldFactory.create(category=self.category)
+        self.field_11 = LookupFieldFactory.create(category=self.category)
+        LookupValueFactory(**{
+            'field': self.field_11,
+            'name': 'Yes'
+        })
+        LookupValueFactory(**{
+            'field': self.field_11,
+            'name': 'No'
+        })
+
         self.aq_field_1 = AirQualityFieldFactory.create(
             type='01. Results',
             field=self.field_1,
@@ -1539,6 +1551,11 @@ class AQMeasurementsAPIViewTest(TestCase):
         self.aq_field_10 = AirQualityFieldFactory.create(
             type='10. Additional details',
             field=self.field_10,
+            category=self.aq_category
+        )
+        self.aq_field_11 = AirQualityFieldFactory.create(
+            type='11. Diffusion tube made by students',
+            field=self.field_11,
             category=self.aq_category
         )
 
@@ -1695,6 +1712,16 @@ class AQMeasurementsSingleAPIViewTest(TestCase):
         self.field_8 = TextFieldFactory.create(category=self.category)
         self.field_9 = TextFieldFactory.create(category=self.category)
         self.field_10 = TextFieldFactory.create(category=self.category)
+        self.field_11 = LookupFieldFactory.create(category=self.category)
+        LookupValueFactory(**{
+            'field': self.field_11,
+            'name': 'Yes'
+        })
+        LookupValueFactory(**{
+            'field': self.field_11,
+            'name': 'No'
+        })
+
         self.aq_field_1 = AirQualityFieldFactory.create(
             type='01. Results',
             field=self.field_1,
@@ -1743,6 +1770,11 @@ class AQMeasurementsSingleAPIViewTest(TestCase):
         self.aq_field_10 = AirQualityFieldFactory.create(
             type='10. Additional details',
             field=self.field_10,
+            category=self.aq_category
+        )
+        self.aq_field_11 = AirQualityFieldFactory.create(
+            type='11. Diffusion tube made by students',
+            field=self.field_11,
             category=self.aq_category
         )
 

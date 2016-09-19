@@ -26,12 +26,10 @@ $(document).ready(function() {
 
         // If project is selected, build structure of categories
         if (val) {
-            var url = 'airquality/projects/' + val;
-
             // Show loader
             loader.removeClass('hidden');
 
-            Control.Ajax.get(url,
+            Control.Ajax.get('airquality/projects/' + val,
                 function(response) {
                     project = response;
 
@@ -39,24 +37,25 @@ $(document).ready(function() {
                     if (project.categories.length < 5) {
                         error('Project must have at least 5 active categories. Please select another project from the list.');
                     } else {
-                        // For each project's categories leave only text fields
+                        // For each project's categories leave only text and lookup fields
                         $.each(project.categories, function(index, category) {
-                            var textFields = [];
+                            category.textFields = [];
+                            category.lookupFields = [];
 
                             $.each(category.fields, function(index, field) {
                                 if (field.fieldtype == 'TextField') {
-                                    textFields.push(field);
+                                    category.textFields.push(field);
+                                } else if (field.fieldtype == 'LookupField') {
+                                    category.lookupFields.push(field);
                                 }
                             });
-
-                            category.fields = textFields;
                         });
 
                         // Make options for select field of project's categories
                         var options = [];
 
                         $.each(project.categories, function(index, category) {
-                            options.push('<option value="' + category.id + '">' + category.name + ' (' + category.fields.length + ')</option>');
+                            options.push('<option value="' + category.id + '">' + category.name + ' (' + category.textFields.length + '+' + category.lookupFields.length + ')</option>');
                         });
 
                         // Populate categories with project's categories
@@ -114,28 +113,50 @@ $(document).ready(function() {
                 }
             }
 
-            // Do not let to use the category, if it does not have 10 text fields
-            if (category.fields.length < 10) {
+            if (category.textFields.length < 10) {
+                // Do not let to use the category, if it does not have 10 text fields
                 error('Category must have at least 10 active text fields. Please select another category from the list (number of total active text fields is displayed in the parantheses).');
+
+                // Make sure no category is selected
+                $(this).prop('selectedIndex', 0);
+            } else if (category.lookupFields.length < 1) {
+                // Do not let to use the category, if it does not have 1 lookup field
+                error('Category must have at least 1 active select box field. Please select another category from the list (number of total active select box fields is displayed in the parantheses).');
 
                 // Make sure no category is selected
                 $(this).prop('selectedIndex', 0);
             } else {
                 // Make options for select field of category's fields
-                var options = [];
+                var textOptions = [];
+                var lookupOptions = [];
 
-                for (i = 0; i < category.fields.length; i++) {
-                    options.push('<option value="' + category.fields[i].id + '">' + category.fields[i].name + '</option>');
+                for (i = 0; i < category.textFields.length; i++) {
+                    textOptions.push('<option value="' + category.textFields[i].id + '">' + category.textFields[i].name + '</option>');
+                }
+
+                for (i = 0; i < category.lookupFields.length; i++) {
+                    lookupOptions.push('<option value="' + category.lookupFields[i].id + '">' + category.lookupFields[i].name + '</option>');
                 }
 
                 // Populate fields with category's fields
                 $(this).closest('.panel').find('select.field').each(function() {
-                    $(this).append(options);
+                    if ($(this).hasClass('made_by_students')) {
+                        $(this).append(lookupOptions);
+                    } else {
+                        $(this).append(textOptions);
+                    }
                 });
 
                 // Show ready fields
                 fields.removeClass('hidden');
             }
+        });
+    });
+
+    // When user changes "Diffusion tube made by students field"...
+    categories.find('select.made_by_students').each(function() {
+        $(this).on('change', function() {
+            console.log('a')
         });
     });
 

@@ -121,6 +121,7 @@ class AQExportView(View):
             'Time in',
             'Exposure time (min)',
             'Exposure time (hr)',
+            'Diffusion tube made by students',
             'Added by'
         ]
 
@@ -159,6 +160,8 @@ class AQExportView(View):
                 'Time in': time_in,
                 'Exposure time (min)': exposure_min,
                 'Exposure time (hr)': exposure_hr,
+                'Diffusion tube made by students': measurement.properties.get(
+                    'made_by_students'),
                 'Added by': measurement.creator.display_name
             }
 
@@ -639,7 +642,8 @@ class AQSheetAPIView(APIView):
             'Time out',
             'Time in',
             'Exposure time (min)',
-            'Exposure time (hr)'
+            'Exposure time (hr)',
+            'Diffusion tube made by students',
         ]
 
         writer = csv.DictWriter(out, fieldnames=fieldnames)
@@ -667,7 +671,9 @@ class AQSheetAPIView(APIView):
                 'Time out': filter_date(measurement.started, 'H:i'),
                 'Time in': filter_date(measurement.finished, 'H:i'),
                 'Exposure time (min)': int(exposure.total_seconds() / 60),
-                'Exposure time (hr)': int(exposure.total_seconds() / 3600)
+                'Exposure time (hr)': int(exposure.total_seconds() / 3600),
+                'Diffusion tube made by students': measurement.properties.get(
+                    'made_by_students')
             }
 
             writer.writerow({key: str(value).encode('utf-8') if value else None for key, value in row.iteritems()})
@@ -972,6 +978,21 @@ class MeasurementAPIMixin(object):
                             value = instance.properties.get(
                                 'additional_details'
                             )
+                        elif key == 'made_by_students':
+                            value = instance.properties.get(
+                                'made_by_students'
+                            )
+
+                            if value:
+                                value = 'Yes'
+                            else:
+                                value = 'No'
+
+                            try:
+                                value = aq_field.field.lookupvalues.get(
+                                    name=value).id
+                            except Field.DoesNotExist:
+                                return False
 
                         if value is not None:
                             properties[aq_field.field.key] = str(value)

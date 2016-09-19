@@ -63,7 +63,7 @@ data-project="{{ project.project.id }}"
 
                 <div id="categories" class="hidden">
                     <label class="control-label">Categories</label>
-                    <p class="help-block">Parentheses indicate a total number of fields of each category.</p>
+                    <p class="help-block">Parentheses indicate a total number of text fields + lookup fields of each category.</p>
 
                     {% for type_key, type_value in category_types.items %}
                         <div class="panel panel-default">
@@ -80,7 +80,7 @@ data-project="{{ project.project.id }}"
                                         {% for type_key, type_value in field_types.items %}
                                             <div class="form-group">
                                                 <label for="{{ type_key }}" class="control-label">{{ type_value }} field</label>
-                                                <select class="form-control field" id="{{ type_key }}" name="{{ type_key }}" data-ftk="{{ type_key }}" required>
+                                                <select class="form-control field {{ type_key }}" name="{{ type_key }}" data-ftk="{{ type_key }}" required>
                                                     <option value="">Please select a field</option>
                                                 </select>
                                             </div>
