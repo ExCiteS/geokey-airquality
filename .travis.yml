@@ -45,7 +45,7 @@ before_script:
   - python travis_ci/manage.py migrate
 
 script:
-  - coverage run --source=geokey_airquality travis/manage.py test geokey_airquality
+  - coverage run --source=geokey_airquality travis_ci/manage.py test geokey_airquality
 
 after_success:
   - coveralls
