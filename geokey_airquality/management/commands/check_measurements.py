@@ -10,7 +10,6 @@ from django.conf import settings
 from django.core import mail
 from django.utils import timezone
 from django.core.management.base import BaseCommand
-from django.template import Context
 from django.template.loader import get_template
 
 from geokey.users.models import User
@@ -56,11 +55,11 @@ class Command(BaseCommand):
             if len(due_to_expire) > 0 or len(already_expired) > 0:
                 message = get_template(
                     'emails/measurements_to_be_finished.txt'
-                ).render(Context({
+                ).render({
                     'receiver': user.display_name,
                     'due_to_expire': due_to_expire,
                     'already_expired': already_expired
-                }))
+                })
 
                 messages.append(mail.EmailMessage(
                     'Air Quality: Measurements to be finished',

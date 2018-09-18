@@ -4,7 +4,6 @@ from django.conf import settings
 from django.core import mail
 from django.dispatch import receiver
 from django.db import models
-from django.template import Context
 from django.template.loader import get_template
 from django.contrib.gis.db import models as gis
 
@@ -25,13 +24,13 @@ def email_user(template, subject, receiver, action,
     """Email user."""
     message = get_template(
         template
-    ).render(Context({
+    ).render({
         'receiver': receiver.display_name,
         'project_name': project_name,
         'category_name': category_name,
         'field_name': field_name,
         'action': action
-    }))
+    })
 
     message = mail.EmailMessage(
         'Air Quality: %s' % subject,
