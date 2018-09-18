@@ -8,7 +8,10 @@ from django.template import Context
 from django.template.loader import get_template
 from django.contrib.gis.db import models as gis
 
-from django_pgjson.fields import JsonBField
+try:
+    from django.contrib.postgres.fields import JSONField
+except ImportError:
+    from django_pgjson.fields import JsonBField as JSONField
 
 from model_utils import Choices
 from model_utils.models import StatusModel, TimeStampedModel
@@ -279,7 +282,7 @@ class AirQualityLocation(models.Model):
     geometry = gis.GeometryField(geography=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     created = models.DateTimeField(auto_now_add=False)
-    properties = JsonBField(default={})
+    properties = JSONField(default={})
 
 
 class AirQualityMeasurement(models.Model):
@@ -293,4 +296,4 @@ class AirQualityMeasurement(models.Model):
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     started = models.DateTimeField(auto_now_add=False)
     finished = models.DateTimeField(auto_now_add=False, blank=True, null=True)
-    properties = JsonBField(default={})
+    properties = JSONField(default={})

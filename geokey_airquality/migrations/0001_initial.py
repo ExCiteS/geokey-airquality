@@ -7,7 +7,10 @@ from django.db import migrations, models
 import django.utils.timezone
 import django.contrib.gis.db.models.fields
 
-import django_pgjson.fields
+try:
+    from django.contrib.postgres.fields import JSONField
+except ImportError:
+    from django_pgjson.fields import JsonBField as JSONField
 import model_utils.fields
 
 
@@ -44,7 +47,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100)),
                 ('geometry', django.contrib.gis.db.models.fields.GeometryField(srid=4326, geography=True)),
                 ('created', models.DateTimeField()),
-                ('properties', django_pgjson.fields.JsonBField(default={})),
+                ('properties', JSONField(default={})),
                 ('creator', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
         ),
@@ -55,7 +58,7 @@ class Migration(migrations.Migration):
                 ('barcode', models.CharField(max_length=25)),
                 ('started', models.DateTimeField()),
                 ('finished', models.DateTimeField(null=True, blank=True)),
-                ('properties', django_pgjson.fields.JsonBField(default={})),
+                ('properties', JSONField(default={})),
                 ('creator', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
                 ('location', models.ForeignKey(related_name='measurements', to='geokey_airquality.AirQualityLocation')),
             ],
