@@ -9,7 +9,7 @@ from pytz import utc
 from django.conf import settings
 from django.core import mail
 from django.utils import timezone
-from django.core.management.base import NoArgsCommand
+from django.core.management.base import BaseCommand
 from django.template import Context
 from django.template.loader import get_template
 
@@ -18,7 +18,7 @@ from geokey.users.models import User
 from geokey_airquality.models import AirQualityMeasurement
 
 
-class Command(NoArgsCommand):
+class Command(BaseCommand):
     """A command to check for expiring/expired measurements."""
 
     def check_measurements(self):
