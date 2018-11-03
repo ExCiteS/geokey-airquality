@@ -21,7 +21,7 @@ Install
 geokey-airquality requires:
 
 - Python version 2.7
-- GeoKey version 1.0 or greater
+- GeoKey version 1.6 or greater
 
 Install the geokey-airquality from PyPI:
 
