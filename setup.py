@@ -2,8 +2,13 @@
 
 """GeoKey extension for Air Quality functionality."""
 
-from os.path import join
+from os.path import dirname, join
 from setuptools import setup, find_packages
+
+
+def read(file_name):
+    with open(join(dirname(__file__), file_name)) as file_object:
+        return file_object.read()
 
 
 name = 'geokey-airquality'
@@ -14,6 +19,7 @@ setup(
     name=name,
     version=version,
     description='GeoKey extension for Air Quality functionality',
+    long_description=read('README.rst'),
     url=repository,
     download_url=join(repository, 'tarball', version),
     author='Mapping for Change',
